@@ -1,0 +1,11 @@
+html {
+	width: 100vw;
+	height: 100vh;
+}
+
+body {
+	background-color: #212121;
+	color: #FFFFFF;
+	margin: 0;
+	padding: 20px;
+}
