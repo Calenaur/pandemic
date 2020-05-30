@@ -58,18 +58,19 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 	return user, nil
 }
 
-func (us *UserStore) userLogin(username string, password string) (*model.User, error) {
-	stmt, err := us.db.Prepare(`
-	SELECT u.username, u.password
-	FROM user u 
-	WHERE username="?" AND password="?"
-	`)
+func (us *UserStore) UserLogin(username string, password string) (*model.User, error) {
+	q := `
+	SELECT *
+	FROM user 
+	WHERE username = ? AND password = ?
+	`
+	stmt, err := us.db.Prepare(q)
 	if err != nil {
 		return nil, err
 	}
 
 	defer stmt.Close()
-	row := stmt.QueryRow()
+	row := stmt.QueryRow(username, password)
 	user, err := us.CreateUserFromRow(row)
 	if err != nil {
 		return nil, err

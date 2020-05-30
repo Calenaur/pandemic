@@ -9,7 +9,8 @@ import (
 
 func (h *Handler) helloTester(c echo.Context) error {
 
-	return c.JSON(http.StatusOK, "HelloBud")
+	username := c.FormValue("username")
+	return c.JSON(http.StatusOK, username)
 
 }
 
@@ -28,19 +29,19 @@ func (h *Handler) userbyid(e echo.Context) error {
 
 }
 
-// func (h *Handler) loginHandler(e echo.Context) error {
-// 	username := e.Param("username")
-// 	password := e.Param("password")
+func (h *Handler) loginHandler(e echo.Context) error {
+	username := e.FormValue("username")
+	password := e.FormValue("password")
+	user, err := h.us.UserLogin(username, password)
 
-// 	user, requestErr := h.us.GetByID()
-// 	if requestErr != nil {
-// 		e.JSON(CODE_ERROR_INTERNAL_SERVER_ERROR, requestErr)
-// 	}
+	if err != nil {
+		e.JSON(CODE_ERROR_INTERNAL_SERVER_ERROR, err)
+	}
 
-// 	return e.JSON(CODE_OK, user)
+	return e.JSON(CODE_OK, user)
 
-// }
+}
 
-// func (h *Handler) createUser(c echo.Context) error {
-
-// }
+func (h *Handler) createUser(c echo.Context) error {
+	return nil
+}

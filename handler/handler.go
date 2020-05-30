@@ -27,8 +27,9 @@ func New(userStore *store.UserStore, config *config.Config) *Handler {
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Pages
 	e.GET("/", h.DebugHandler)
-	e.GET("/hello", h.helloTester)
+	e.POST("/hello", h.helloTester)
 	e.GET("/user/:id", h.userbyid)
+	e.POST("/login", h.loginHandler)
 
 	//Static
 	e.File("/static/css", "static/css/style.css")

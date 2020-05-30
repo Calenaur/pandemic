@@ -6,5 +6,5 @@ type User struct {
 	Password    string `json:"password"`
 	Session     string `json:"session"`
 	SessionDate string `json:"date"`
-	Manufacture int64  `json:manufacture`
+	Manufacture int64  `json:"manufacture"`
 }
