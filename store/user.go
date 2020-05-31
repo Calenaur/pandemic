@@ -46,9 +46,9 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 	err := row.Scan(
 		&user.ID,
 		&user.Username,
-		&user.Password,
+		//		&user.Password,
 		&user.Session,
-		&user.SessionDate,
+		//		&user.SessionDate,
 		&user.Manufacture,
 	)
 	if err != nil {
@@ -60,7 +60,7 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 
 func (us *UserStore) UserLogin(username string, password string) (*model.User, error) {
 	q := `
-	SELECT *
+	SELECT id, username, session, manufacture
 	FROM user 
 	WHERE username = ? AND password = ?
 	`

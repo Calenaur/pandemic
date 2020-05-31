@@ -4,6 +4,7 @@ import (
 	"github.com/calenaur/pandemic/config"
 	"github.com/calenaur/pandemic/store"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 const CODE_OK = 200
@@ -33,4 +34,10 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	//Static
 	e.File("/static/css", "static/css/style.css")
+
+	//Grouping
+	r := e.Group("/restricted")
+	r.Use(middleware.JWT([]byte("جامعة هانزه العلوم تطبيقية")))
+	r.GET("", restricted)
+
 }
