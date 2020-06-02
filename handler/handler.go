@@ -31,6 +31,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.POST("/hello", h.helloTester)
 	e.GET("/user/:id", h.userbyid)
 	e.POST("/login", h.loginHandler)
+	e.POST("/signup", h.signupHandler)
 
 	//Static
 	e.File("/static/css", "static/css/style.css")
