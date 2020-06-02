@@ -1,21 +1,21 @@
 package main
 
 import (
+	"github.com/calenaur/pandemic/config"
+	"github.com/calenaur/pandemic/db"
+	"github.com/calenaur/pandemic/handler"
+	"github.com/calenaur/pandemic/store"
+	echotemplate "github.com/foolin/echo-template"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/foolin/echo-template"
-	"github.com/calenaur/pandemic/db"
-	"github.com/calenaur/pandemic/store"
-	"github.com/calenaur/pandemic/config"
-	"github.com/calenaur/pandemic/handler"
 )
 
 func main() {
 	//Load config
 	cfg, err := config.Load("config.json")
-    if err != nil {
+	if err != nil {
 		panic(err)
-    }
+	}
 
 	//Connect to database
 	con, err := db.New(cfg.Database.Username, cfg.Database.Password, cfg.Database.Database)
