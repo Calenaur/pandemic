@@ -33,6 +33,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Grouping
 	r := e.Group("/restricted")
 	r.Use(middleware.JWT([]byte("جامعة هانزه العلوم تطبيقية")))
+	e.Use(middleware.CORS())
 	r.GET("", restricted)
 
 }
