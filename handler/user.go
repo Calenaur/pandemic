@@ -51,7 +51,7 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	claims["name"] = user.Username
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-	tok, err := token.SignedString([]byte("جامعة هانزه العلوم تطبيقية"))
+	tok, err := token.SignedString([]byte(h.cfg.Token.Key))
 
 	if err != nil {
 		return e.JSON(http.StatusUnauthorized, "Token malformed.")

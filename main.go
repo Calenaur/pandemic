@@ -38,6 +38,6 @@ func main() {
 
 	//Routes
 	handler.RegisterRoutes(e)
-
-	e.Logger.Fatal(e.Start(":1323"))
+	port := cfg.Server.Port
+	e.Logger.Fatal(e.Start(port))
 }

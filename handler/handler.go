@@ -20,6 +20,7 @@ func New(userStore *store.UserStore, config *config.Config) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(e *echo.Echo) {
+	key := h.cfg.Token.Key
 	//Pages
 	//e.GET("/", h.DebugHandler)
 	e.POST("/hello", h.helloTester)
@@ -32,7 +33,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	//Grouping
 	r := e.Group("/restricted")
-	r.Use(middleware.JWT([]byte("جامعة هانزه العلوم تطبيقية")))
+	r.Use(middleware.JWT([]byte(key)))
 	e.Use(middleware.CORS())
 	r.GET("", restricted)
 
