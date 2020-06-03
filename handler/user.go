@@ -21,15 +21,14 @@ func (h *Handler) userbyid(e echo.Context) error {
 	rowid := e.Param("id")
 	id, inputErr := strconv.ParseInt(rowid, 10, 64)
 	if inputErr != nil {
-		e.JSON(CODE_ERROR_INVALID_ARGUMENTS, inputErr)
+		return e.JSON(http.StatusBadRequest, "Wrong id provided.")
 	}
 	user, requestErr := h.us.GetByID(id)
 	if requestErr != nil {
-		e.JSON(CODE_ERROR_INTERNAL_SERVER_ERROR, requestErr)
+		return e.JSON(http.StatusInternalServerError, "Can't find id.")
 	}
 
-	return e.JSON(CODE_OK, user)
-
+	return e.JSON(http.StatusOK, user)
 }
 
 func (h *Handler) loginHandler(e echo.Context) error {
@@ -38,11 +37,11 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	user, err := h.us.UserLogin(username, password)
 
 	if err != nil {
-		e.JSON(CODE_ERROR_INTERNAL_SERVER_ERROR, err)
+		return e.JSON(http.StatusServiceUnavailable, "Database can not handle the request.")
 	}
 
 	if user == nil {
-		return e.JSON(http.StatusUnauthorized, echo.ErrUnauthorized)
+		return e.JSON(http.StatusUnauthorized, "Wrong username or password.")
 	}
 
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -55,10 +54,10 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	tok, err := token.SignedString([]byte("جامعة هانزه العلوم تطبيقية"))
 
 	if err != nil {
-		return e.JSON(CODE_ERROR_INTERNAL_SERVER_ERROR, "something went wrong!")
+		return e.JSON(http.StatusUnauthorized, "Token malformed.")
 	}
 
-	return e.JSON(CODE_OK, map[string]string{
+	return e.JSON(http.StatusOK, map[string]string{
 		"token": tok,
 	})
 
