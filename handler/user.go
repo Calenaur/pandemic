@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -83,7 +84,14 @@ func restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	name := claims["name"].(string)
+	fmt.Println(claims)
+	rowid := claims["sub"].(float64)
+
+	sub := fmt.Sprintf("%g", rowid)
+
+	fmt.Print(sub)
 	return c.JSON(http.StatusOK, map[string]string{
 		"name": name,
+		"id":   sub,
 	})
 }
