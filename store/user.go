@@ -100,8 +100,8 @@ func (us *UserStore) UserSignup(username string, passwordString string) error {
 
 	// Query
 	q := `
-	INSERT INTO user
-	VALUES (NULL, ?, ?, NULL, NULL)
+	INSERT INTO user (username, password) 
+	VALUES (? , ?)
 	`
 	stmt, err := us.db.Prepare(q)
 	if err != nil {
