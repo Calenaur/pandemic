@@ -50,7 +50,7 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 		&user.ID,
 		&user.Username,
 		// &user.Password,
-		&user.Session,
+		&user.Balance,
 		// &user.SessionDate,
 		&user.Manufacture,
 	)
@@ -68,7 +68,7 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 		return nil, err
 	}
 	q := `
-	SELECT id, username, session, manufacture
+	SELECT id, username, balance, manufacture
 	FROM user 
 	WHERE username = ?
 	`

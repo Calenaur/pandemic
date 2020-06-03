@@ -3,8 +3,8 @@ package model
 import "database/sql"
 
 type User struct {
-	ID          int64          `json:"id"`
-	Username    string         `json:"username"`
-	Session     sql.NullString `json:"session"`
-	Manufacture sql.NullInt64  `json:"manufacture"`
+	ID          int64         `json:"id"`
+	Username    string        `json:"username"`
+	Balance     sql.NullInt64 `json:"balance"`
+	Manufacture sql.NullInt64 `json:"manufacture"`
 }
