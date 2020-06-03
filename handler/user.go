@@ -70,11 +70,9 @@ func (h *Handler) signupHandler(e echo.Context) error {
 	err := h.us.UserSignup(username, password)
 
 	if err != nil {
-		e.JSON(CODE_ERROR_INTERNAL_SERVER_ERROR, err)
+		return e.JSON(http.StatusForbidden, "Duplicate entry")
 	}
-
-	return e.JSON(CODE_OK, username+" created.")
-
+	return e.JSON(http.StatusCreated, "User created")
 }
 
 func accessible(c echo.Context) error {

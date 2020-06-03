@@ -95,13 +95,13 @@ func (us *UserStore) UserSignup(username string, passwordString string) error {
 	password := []byte(passwordString)
 	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Query
 	q := `
 	INSERT INTO user
-	VALUES (NULL, ?, ?, NULL, NULL, NULL)
+	VALUES (NULL, ?, ?, NULL, NULL)
 	`
 	stmt, err := us.db.Prepare(q)
 	if err != nil {
