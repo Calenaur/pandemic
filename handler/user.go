@@ -64,6 +64,20 @@ func (h *Handler) loginHandler(e echo.Context) error {
 
 }
 
+func (h *Handler) signupHandler(e echo.Context) error {
+	username := e.FormValue("username")
+	password := e.FormValue("password")
+
+	err := h.us.UserSignup(username, password)
+
+	if err != nil {
+		e.JSON(CODE_ERROR_INTERNAL_SERVER_ERROR, err)
+	}
+
+	return e.JSON(CODE_OK, username+" created.")
+
+}
+
 func accessible(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Accessible")
 }
@@ -82,8 +96,4 @@ func restricted(c echo.Context) error {
 		"name": name,
 		"id":   sub,
 	})
-}
-
-func (h *Handler) createUser(c echo.Context) error {
-	return nil
 }
