@@ -3,8 +3,10 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
+	"unicode"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -35,6 +37,10 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	username := e.FormValue("username")
 	password := e.FormValue("password")
 	user, err := h.us.UserLogin(username, password)
+
+	if !inputRequirements(username, password) {
+		return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
+	}
 
 	if err != nil {
 		return e.JSON(http.StatusServiceUnavailable, "Database can not handle the request.")
@@ -67,6 +73,10 @@ func (h *Handler) signupHandler(e echo.Context) error {
 	username := e.FormValue("username")
 	password := e.FormValue("password")
 
+	if !inputRequirements(username, password) {
+		return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
+	}
+
 	err := h.us.UserSignup(username, password)
 
 	if err != nil {
@@ -93,4 +103,29 @@ func restricted(c echo.Context) error {
 		"name": name,
 		"id":   sub,
 	})
+}
+
+func inputRequirements(username string, password string) bool {
+	var validUsername = regexp.MustCompile(`^([A-Za-z0-9]){2,16}$`)
+
+	if !(len(password) >= 8 && len(password) <= 64) {
+		return false
+	}
+
+next:
+	for _, classes := range map[string][]*unicode.RangeTable{
+		"upper case": {unicode.Upper, unicode.Title},
+		"numeric":    {unicode.Number, unicode.Digit},
+	} {
+		for _, r := range password {
+			if unicode.IsOneOf(classes, r) {
+				continue next
+			}
+		}
+		// fmt.Printf("password must have at least one %s character", name)
+		// fmt.Println()
+		return false
+	}
+
+	return validUsername.MatchString(username)
 }
