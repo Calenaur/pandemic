@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -21,12 +22,14 @@ func (h *Handler) helloTester(c echo.Context) error {
 
 func (h *Handler) userbyid(e echo.Context) error {
 	rowid := e.Param("id")
-	id, inputErr := strconv.ParseInt(rowid, 10, 64)
-	if inputErr != nil {
-		return e.JSON(http.StatusBadRequest, "Wrong id provided.")
+	id, err := strconv.ParseInt(rowid, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+		return e.JSON(http.StatusBadRequest, "Id not an int.")
 	}
-	user, requestErr := h.us.GetByID(id)
-	if requestErr != nil {
+	user, err := h.us.GetByID(id)
+	if err != nil {
+		log.Fatal(err)
 		return e.JSON(http.StatusInternalServerError, "Can't find id.")
 	}
 
@@ -36,13 +39,14 @@ func (h *Handler) userbyid(e echo.Context) error {
 func (h *Handler) loginHandler(e echo.Context) error {
 	username := e.FormValue("username")
 	password := e.FormValue("password")
-	user, err := h.us.UserLogin(username, password)
 
 	if !inputRequirements(username, password) {
 		return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
 	}
+	user, err := h.us.UserLogin(username, password)
 
 	if err != nil {
+		log.Fatal(err)
 		return e.JSON(http.StatusServiceUnavailable, "Database can not handle the request.")
 	}
 
@@ -60,6 +64,7 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	tok, err := token.SignedString([]byte(h.cfg.Token.Key))
 
 	if err != nil {
+		log.Fatal(err)
 		return e.JSON(http.StatusUnauthorized, "Token malformed.")
 	}
 
@@ -80,6 +85,7 @@ func (h *Handler) signupHandler(e echo.Context) error {
 	err := h.us.UserSignup(username, password)
 
 	if err != nil {
+		log.Fatal(err)
 		return e.JSON(http.StatusForbidden, "Duplicate entry")
 	}
 	return e.JSON(http.StatusCreated, "User created")

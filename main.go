@@ -39,5 +39,5 @@ func main() {
 	//Routes
 	handler.RegisterRoutes(e)
 	port := cfg.Server.Port
-	e.Logger.Fatal(e.Start(port))
+	e.Logger.Fatal(e.Start(":" + port))
 }
