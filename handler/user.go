@@ -3,8 +3,10 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
+	"unicode"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -37,6 +39,10 @@ func (h *Handler) loginHandler(e echo.Context) error {
 
 	user, err := h.us.UserLogin(username, password)
 
+	if !inputRequirements(username, password) {
+		return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
+	}
+
 	if err != nil {
 		return e.JSON(http.StatusServiceUnavailable, "Database can not handle the request.")
 	}
@@ -68,6 +74,10 @@ func (h *Handler) signupHandler(e echo.Context) error {
 	username := e.FormValue("username")
 	password := e.FormValue("password")
 
+	if !inputRequirements(username, password) {
+		return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
+	}
+
 	err := h.us.UserSignup(username, password)
 
 	if err != nil {
@@ -80,6 +90,7 @@ func accessible(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Accessible")
 }
 
+// Restricted admin access !TODO
 func restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
@@ -116,6 +127,10 @@ func (h *Handler) changePasswordHandler(c echo.Context) error {
 
 	newPassword := c.FormValue("newpassword")
 
+	// if !inputRequirements(username, password) {
+	// 	return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
+	// }
+
 	err := h.us.ChangeUserPassword(id, newPassword)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "Password couldn't be changed please try again")
@@ -149,4 +164,28 @@ func getUserFromToken(c echo.Context) (string, string) {
 	stringID := fmt.Sprintf("%g", rowid)
 
 	return stringID, username
+}
+
+func inputRequirements(username string, password string) bool {
+	var validUsername = regexp.MustCompile(`^([A-Za-z0-9]){2,16}$`)
+
+	if !(len(password) >= 8 && len(password) <= 64) {
+		return false
+	}
+
+next:
+	for _, classes := range map[string][]*unicode.RangeTable{
+		"upper case": {unicode.Upper, unicode.Title},
+		"numeric":    {unicode.Number, unicode.Digit},
+	} {
+		for _, r := range password {
+			if unicode.IsOneOf(classes, r) {
+				continue next
+			}
+		}
+		// fmt.Printf("password must have at least one %s character", name)
+		// fmt.Println()
+		return false
+	}
+
 }
