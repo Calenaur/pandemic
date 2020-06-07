@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/calenaur/pandemic/config"
 	"github.com/calenaur/pandemic/model"
@@ -15,6 +14,15 @@ type UserStore struct {
 	cfg *config.Config
 }
 
+type Message struct {
+	Error *Error `json:"error"`
+}
+
+type Error struct {
+	code    string `json:"code"`
+	message string `json:"message"`
+}
+
 func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 	return &UserStore{
 		db:  db,
@@ -25,12 +33,11 @@ func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 func (us *UserStore) GetByID(id int64) (*model.User, error) {
 	stmt, err := us.db.Prepare(`
 		SELECT 
-			*
+		id, username, balance, manufacture
 		FROM user
 		WHERE id = ?
 	`)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 
@@ -38,7 +45,6 @@ func (us *UserStore) GetByID(id int64) (*model.User, error) {
 	row := stmt.QueryRow(id)
 	user, err := us.CreateUserFromRow(row)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 
@@ -56,7 +62,6 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 		&user.Manufacture,
 	)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 
@@ -67,7 +72,6 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 	// decipher password
 	err := us.decipher(username, password)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 	q := `
@@ -77,7 +81,6 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 	`
 	stmt, err := us.db.Prepare(q)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 
@@ -85,7 +88,6 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 	row := stmt.QueryRow(username)
 	user, err := us.CreateUserFromRow(row)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 
@@ -98,7 +100,6 @@ func (us *UserStore) UserSignup(username string, passwordString string) error {
 	password := []byte(passwordString)
 	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
@@ -109,39 +110,26 @@ func (us *UserStore) UserSignup(username string, passwordString string) error {
 	`
 	stmt, err := us.db.Prepare(q)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
 	defer stmt.Close()
 	_, err = stmt.Exec(username, hashedPassword)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
 	return err
 }
 
+// decipher hashed password
 func (us *UserStore) decipher(username string, passwordString string) error {
-	// decipher hashed password
 	var hashedPasswordString string
-	rows, err := us.db.Query("SELECT password FROM user WHERE username = ?", username)
+	row := us.db.QueryRow("SELECT password FROM user WHERE username = ?", username)
+
+	err := row.Scan(&hashedPasswordString)
+
 	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&hashedPasswordString)
-		if err != nil {
-			log.Fatal(err)
-			return err
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
@@ -150,7 +138,6 @@ func (us *UserStore) decipher(username string, passwordString string) error {
 
 	err = bcrypt.CompareHashAndPassword(hashedPassword, password)
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 	return err
