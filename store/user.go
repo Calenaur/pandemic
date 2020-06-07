@@ -146,20 +146,72 @@ func (us *UserStore) decipher(username string, passwordString string) error {
 	return err
 }
 
-// func (us *UserStore) DeleteByID(id int) (bool, error) {
-// 	stmt, err := us.db.Prepare(`
-// 		DELETE
-// 		FROM user
-// 		WHERE id = ?
-// 	`)
-// 	if err != nil {
-// 		return false, err
-// 	}
+func (us *UserStore) ChangeUserName(id string, newName string) error {
 
-// 	defer stmt.Close()
-// 	if err != nil {
-// 		return false, err
-// 	}
+	// Query
+	q := `
+	UPDATE user 
+	SET  username = ? 
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(newName, id)
+	if err != nil {
+		return err
+	}
 
-// 	return true, nil
-// }
+	return err
+}
+
+func (us *UserStore) ChangeUserPassword(id string, password string) error {
+
+	// Hash password
+	passwordByte := []byte(password)
+	hashedPassword, err := bcrypt.GenerateFromPassword(passwordByte, bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	// Query
+	q := `
+	UPDATE user 
+	SET  password = ? 
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(hashedPassword, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) DeleteAccount(id string) error {
+
+	// Query
+	q := `
+	DELETE
+	FROM user 
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
