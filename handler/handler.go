@@ -24,17 +24,25 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Pages
 	//e.GET("/", h.DebugHandler)
 	e.POST("/hello", h.helloTester)
-	e.GET("/user/:id", h.userbyid)
+	e.GET("/usr/:id", h.userbyid)
 	e.POST("/login", h.loginHandler)
 	e.POST("/signup", h.signupHandler)
+	//e.POST("/user/changename", h.changename)
 
 	//Static
 	e.File("/static/css", "static/css/style.css")
 
-	//Grouping
+	//Restricted access, only for admin !TODO
 	r := e.Group("/restricted")
 	r.Use(middleware.JWT([]byte(key)))
 	e.Use(middleware.CORS())
 	r.GET("", restricted)
+
+	//User specific stuff
+	u := e.Group("/user")
+	u.Use(middleware.JWT([]byte(key)))
+	u.POST("/changename", h.changeNameHandler)
+	u.POST("/changepassword", h.changePasswordHandler)
+	u.GET("/deleteaccount", h.deleteAccountHandler)
 
 }
