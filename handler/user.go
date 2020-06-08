@@ -1,12 +1,15 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
 	"time"
 	"unicode"
+
+	"github.com/Calenaur/pandemic/handler/response"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -21,13 +24,13 @@ func (h *Handler) helloTester(c echo.Context) error {
 
 func (h *Handler) userbyid(e echo.Context) error {
 	rowid := e.Param("id")
-	id, inputErr := strconv.ParseInt(rowid, 10, 64)
-	if inputErr != nil {
-		return e.JSON(http.StatusBadRequest, "Wrong id provided.")
+	id, err := strconv.ParseInt(rowid, 10, 64)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
 	}
-	user, requestErr := h.us.GetByID(id)
-	if requestErr != nil {
-		return e.JSON(http.StatusInternalServerError, "Can't find id.")
+	user, err := h.us.GetByID(id)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
 	}
 
 	return e.JSON(http.StatusOK, user)
@@ -37,18 +40,19 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	username := e.FormValue("username")
 	password := e.FormValue("password")
 
+	// TODO No need to check input requirements for login?
+	// err := inputRequirements(username, password)
+	// if err != nil {
+	// 	return response.MessageHandler(err, "", e)
+	// }
 	user, err := h.us.UserLogin(username, password)
 
-	if !inputRequirements(username, password) {
-		return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
-	}
-
 	if err != nil {
-		return e.JSON(http.StatusServiceUnavailable, "Database can not handle the request.")
+		return response.MessageHandler(err, "", e)
 	}
 
 	if user == nil {
-		return e.JSON(http.StatusUnauthorized, "Wrong username or password.")
+		return response.MessageHandler(err, "", e)
 	}
 
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -61,7 +65,7 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	tok, err := token.SignedString([]byte(h.cfg.Token.Key))
 
 	if err != nil {
-		return e.JSON(http.StatusUnauthorized, "Token malformed.")
+		return response.MessageHandler(err, "UnhandledtokenError", e)
 	}
 
 	return e.JSON(http.StatusOK, map[string]string{
@@ -74,16 +78,17 @@ func (h *Handler) signupHandler(e echo.Context) error {
 	username := e.FormValue("username")
 	password := e.FormValue("password")
 
-	if !inputRequirements(username, password) {
-		return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
+	err := inputRequirements(username, password)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
 	}
 
-	err := h.us.UserSignup(username, password)
+	err = h.us.UserSignup(username, password)
 
 	if err != nil {
-		return e.JSON(http.StatusForbidden, "Duplicate entry")
+		return response.MessageHandler(err, "", e)
 	}
-	return e.JSON(http.StatusCreated, "User created")
+	return response.MessageHandler(err, "User created", e)
 }
 
 func accessible(c echo.Context) error {
@@ -166,15 +171,18 @@ func getUserFromToken(c echo.Context) (string, string) {
 	return stringID, username
 }
 
-func inputRequirements(username string, password string) bool {
+func inputRequirements(username string, password string) error {
 	var validUsername = regexp.MustCompile(`^([A-Za-z0-9]){2,16}$`)
 
 	if !(len(password) >= 8 && len(password) <= 64) {
-		return false
+		return errors.New("Password length must be between 8 and 64 characters")
+	}
+	if !(len(username) >= 2 && len(username) <= 16) {
+		return errors.New("Username length must be between 2 and 16 characters")
 	}
 
 next:
-	for _, classes := range map[string][]*unicode.RangeTable{
+	for name, classes := range map[string][]*unicode.RangeTable{
 		"upper case": {unicode.Upper, unicode.Title},
 		"numeric":    {unicode.Number, unicode.Digit},
 	} {
@@ -185,7 +193,11 @@ next:
 		}
 		// fmt.Printf("password must have at least one %s character", name)
 		// fmt.Println()
-		return false
+		return errors.New("password must have at least one " + name + " character")
 	}
 
+	if !validUsername.MatchString(username) {
+		return errors.New("Username can not have special characters")
+	}
+	return nil
 }
