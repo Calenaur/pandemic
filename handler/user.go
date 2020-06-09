@@ -117,6 +117,12 @@ func (h *Handler) changeNameHandler(c echo.Context) error {
 	id, _ := getUserFromToken(c)
 
 	newname := c.FormValue("newname")
+	password := c.FormValue("password")
+
+	err1 := inputRequirements(newname, password)
+	if err1 != nil {
+		return response.MessageHandler(err1, "", c)
+	}
 
 	err := h.us.ChangeUserName(id, newname)
 	if err != nil {
@@ -130,15 +136,17 @@ func (h *Handler) changeNameHandler(c echo.Context) error {
 func (h *Handler) changePasswordHandler(c echo.Context) error {
 	id, _ := getUserFromToken(c)
 
+	_, username := getUserFromToken(c)
 	newPassword := c.FormValue("newpassword")
 
-	// if !inputRequirements(username, password) {
-	// 	return e.JSON(http.StatusForbidden, "Username or password does not meet requirements.")
-	// }
+	err1 := inputRequirements(username, newPassword)
+	if err1 != nil {
+		return response.MessageHandler(err1, "", c)
+	}
 
-	err := h.us.ChangeUserPassword(id, newPassword)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Password couldn't be changed please try again")
+	err2 := h.us.ChangeUserPassword(id, newPassword)
+	if err2 != nil {
+		return response.MessageHandler(err2, "", c)
 	}
 
 	return c.JSON(http.StatusOK, "Passowrd changed successfully")
