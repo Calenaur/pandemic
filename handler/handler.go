@@ -41,8 +41,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//User specific stuff
 	u := e.Group("/user")
 	u.Use(middleware.JWT([]byte(key)))
-	u.POST("/changename", h.changeNameHandler)
-	u.POST("/changepassword", h.changePasswordHandler)
-	u.GET("/deleteaccount", h.deleteAccountHandler)
+	u.PUT("/changename", h.changeNameHandler)
+	u.PUT("/changepassword", h.changePasswordHandler)
+	u.DELETE("/deleteaccount", h.deleteAccountHandler)
 
 }
