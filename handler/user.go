@@ -119,6 +119,7 @@ func restricted(c echo.Context) error {
 // Allow the user to change his/her name
 func (h *Handler) changeNameHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
+	// fmt.Println(id)
 
 	newname := c.FormValue("newname")
 
@@ -176,17 +177,17 @@ func getUserFromToken(c echo.Context) (string, string, string) {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	username := claims["name"].(string)
-	rowid := claims["sub"].(float64)
+	rowid := claims["sub"].(string)
 
 	accesslevel := claims["access"].(float64)
 
-	stringID := fmt.Sprintf("%g", rowid)
+	// stringID := fmt.Sprintf("%g", rowid)
 	stringLevel := fmt.Sprintf("%g", accesslevel)
 
-	fmt.Println(stringID)
-	fmt.Println(stringLevel)
+	// fmt.Println(stringID)
+	// fmt.Println(stringLevel)
 
-	return stringID, username, stringLevel
+	return rowid, username, stringLevel
 }
 
 func usernameRequirements(username string) error {

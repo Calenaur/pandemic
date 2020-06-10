@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `tier` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` varchar(64) NOT NULL UNIQUE,
   `username` varchar(64) NOT NULL UNIQUE,
   `password` varchar(64) NOT NULL,
   `accesslevel` int(11) DEFAULT 1,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user_disease` (
-  `user` int(11) NOT NULL,
+  `user` varchar(64) NOT NULL,
   `disease` int(11) NOT NULL,
   PRIMARY KEY (`user`,`disease`),
   KEY `FK_user_disease_disease_id` (`disease`),
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `user_disease` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user_event` (
-  `user` int(11) NOT NULL,
+  `user` varchar(64) NOT NULL,
   `event` int(11) NOT NULL,
   PRIMARY KEY (`user`,`event`),
   KEY `FK_user_event_event_id` (`event`),
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `user_event` (
 
 CREATE TABLE IF NOT EXISTS `user_medication` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user` int(11) NOT NULL,
+  `user` varchar(64) NOT NULL,
   `medication` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_user_medication_user_id` (`user`),
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS `user_medication_trait` (
 
 CREATE TABLE IF NOT EXISTS `user_researcher` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user` int(11) DEFAULT NULL,
+  `user` varchar(64) DEFAULT NULL,
   `researcher` int(11) DEFAULT NULL,
   `name` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),

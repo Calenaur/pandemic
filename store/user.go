@@ -2,10 +2,12 @@ package store
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/calenaur/pandemic/config"
 	"github.com/calenaur/pandemic/model"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -107,8 +109,8 @@ func (us *UserStore) UserSignup(username string, passwordString string) error {
 
 	// Query
 	q := `
-	INSERT INTO user (username, password) 
-	VALUES (? , ?)
+	INSERT INTO user (id, username, password) 
+	VALUES (?, ?, ?)
 	`
 	stmt, err := us.db.Prepare(q)
 	if err != nil {
@@ -116,7 +118,12 @@ func (us *UserStore) UserSignup(username string, passwordString string) error {
 	}
 
 	defer stmt.Close()
-	_, err = stmt.Exec(username, hashedPassword)
+	id := strings.ReplaceAll(uuid.New().String(), "-", "")
+	// fmt.Println(id)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id, username, hashedPassword)
 	if err != nil {
 		return err
 	}
@@ -146,7 +153,6 @@ func (us *UserStore) decipher(username string, passwordString string) error {
 }
 
 func (us *UserStore) ChangeUserName(id string, newName string) error {
-
 	// Query
 	q := `
 	UPDATE user 
