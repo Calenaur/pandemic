@@ -23,7 +23,7 @@ type Error struct {
 // Unknown Error
 var UNKNOWN_ERROR uint16 = 2999
 
-var DEBUG = false
+var DEBUG = true
 var localError uint16
 
 func MessageHandler(err error, message string, e echo.Context) error {
@@ -90,8 +90,11 @@ func MessageHandler(err error, message string, e echo.Context) error {
 }
 
 func getStatus(code uint16) int {
-	if code == 1062 {
-		return http.StatusForbidden
+	// Implement all codes
+	statusDict := make(map[uint16]int)
+	statusDict[1062] = http.StatusForbidden
+	if val, ok := statusDict[code]; ok {
+		return val
 	}
 	return http.StatusInternalServerError
 }

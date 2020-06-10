@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(64) NOT NULL UNIQUE,
   `password` varchar(64) NOT NULL,
+  `accesslevel` int(11) NOT NULL,
   `balance` int(20) DEFAULT NULL,
   `manufacture` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
