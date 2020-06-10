@@ -79,7 +79,11 @@ func (h *Handler) signupHandler(e echo.Context) error {
 	username := e.FormValue("username")
 	password := e.FormValue("password")
 
-	err := inputRequirements(username, password)
+	err := usernameRequirements(username)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
+	}
+	err = passwordRequirements(password)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
 	}
@@ -117,39 +121,38 @@ func (h *Handler) changeNameHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
 	newname := c.FormValue("newname")
-	password := c.FormValue("password")
 
-	err1 := inputRequirements(newname, password)
-	if err1 != nil {
-		return response.MessageHandler(err1, "", c)
-	}
-
-	err := h.us.ChangeUserName(id, newname)
+	err := usernameRequirements(newname)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Name couldn't be changed please try again")
+		return response.MessageHandler(err, "", c)
 	}
 
-	return c.JSON(http.StatusOK, "username changed successfully")
+	err = h.us.ChangeUserName(id, newname)
+	if err != nil {
+		return response.MessageHandler(err, "Name could not be changed", c)
+	}
+	return response.MessageHandler(err, "Name updated successfully", c)
 }
 
 // Allow the user to Change their password
 func (h *Handler) changePasswordHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
-	_, username, _ := getUserFromToken(c)
 	newPassword := c.FormValue("newpassword")
 
-	err1 := inputRequirements(username, newPassword)
-	if err1 != nil {
-		return response.MessageHandler(err1, "", c)
+	err := passwordRequirements(newPassword)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+
 	}
 
-	err2 := h.us.ChangeUserPassword(id, newPassword)
-	if err2 != nil {
-		return response.MessageHandler(err2, "", c)
+	err = h.us.ChangeUserPassword(id, newPassword)
+	if err != nil {
+		return response.MessageHandler(err, "Password could not be changed", c)
+		// return c.JSON(http.StatusBadRequest, "Password couldn't be changed please try again")
 	}
-
-	return c.JSON(http.StatusOK, "Passowrd changed successfully")
+	return response.MessageHandler(err, "Password updated successfully", c)
+	// return c.JSON(http.StatusOK, "Passowrd changed successfully")
 }
 
 // Allow the user to delete their own account
@@ -159,10 +162,11 @@ func (h *Handler) deleteAccountHandler(c echo.Context) error {
 	err := h.us.DeleteAccount(id)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+		return response.MessageHandler(err, "UnknownError", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
 	}
-
-	return c.JSON(http.StatusOK, "Account deleted successfully")
+	return response.MessageHandler(err, "Account deleted successfully", c)
+	// return c.JSON(http.StatusOK, "Account deleted successfully")
 }
 
 // this function returns the user id and username from the token,
@@ -185,14 +189,22 @@ func getUserFromToken(c echo.Context) (string, string, string) {
 	return stringID, username, stringLevel
 }
 
-func inputRequirements(username string, password string) error {
+func usernameRequirements(username string) error {
 	var validUsername = regexp.MustCompile(`^([A-Za-z0-9]){2,16}$`)
 
-	if !(len(password) >= 8 && len(password) <= 64) {
-		return errors.New("Password length must be between 8 and 64 characters")
-	}
 	if !(len(username) >= 2 && len(username) <= 16) {
 		return errors.New("Username length must be between 2 and 16 characters")
+	}
+
+	if !validUsername.MatchString(username) {
+		return errors.New("Username can not have special characters")
+	}
+	return nil
+}
+
+func passwordRequirements(password string) error {
+	if !(len(password) >= 8 && len(password) <= 64) {
+		return errors.New("Password length must be between 8 and 64 characters")
 	}
 
 next:
@@ -208,10 +220,6 @@ next:
 		// fmt.Printf("password must have at least one %s character", name)
 		// fmt.Println()
 		return errors.New("password must have at least one " + name + " character")
-	}
-
-	if !validUsername.MatchString(username) {
-		return errors.New("Username can not have special characters")
 	}
 	return nil
 }
