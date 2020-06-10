@@ -27,7 +27,9 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/usr/:id", h.userbyid)
 	e.POST("/login", h.loginHandler)
 	e.POST("/signup", h.signupHandler)
-	//e.POST("/user/changename", h.changename)
+	// e.PUT("/user/changename", h.changeNameHandler)
+	// e.PUT("/user/changepassword", h.changePasswordHandler)
+	// e.DELETE("/user/delete", h.deleteAccountHandler)
 
 	//Static
 	e.File("/static/css", "static/css/style.css")
@@ -41,8 +43,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//User specific stuff
 	u := e.Group("/user")
 	u.Use(middleware.JWT([]byte(key)))
-	u.POST("/changename", h.changeNameHandler)
-	u.POST("/changepassword", h.changePasswordHandler)
-	u.GET("/deleteaccount", h.deleteAccountHandler)
+	u.PUT("/changename", h.changeNameHandler)
+	u.PUT("/changepassword", h.changePasswordHandler)
+	u.DELETE("/deleteaccount", h.deleteAccountHandler)
 
 }
