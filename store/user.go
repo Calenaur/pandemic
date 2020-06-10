@@ -33,7 +33,7 @@ func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 func (us *UserStore) GetByID(id int64) (*model.User, error) {
 	stmt, err := us.db.Prepare(`
 		SELECT 
-		id, username, balance, manufacture
+		id, username, accesslevel, balance, manufacture
 		FROM user
 		WHERE id = ?
 	`)
@@ -57,7 +57,9 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 		&user.ID,
 		&user.Username,
 		// &user.Password,
+		&user.AccessLevel,
 		&user.Balance,
+
 		// &user.SessionDate,
 		&user.Manufacture,
 	)
@@ -75,7 +77,7 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 		return nil, err
 	}
 	q := `
-	SELECT id, username, balance, manufacture
+	SELECT id, username, accesslevel,balance, manufacture
 	FROM user 
 	WHERE username = ?
 	`

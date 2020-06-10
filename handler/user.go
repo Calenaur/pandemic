@@ -60,6 +60,7 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["sub"] = user.ID
 	claims["name"] = user.Username
+	claims["access"] = user.AccessLevel
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	tok, err := token.SignedString([]byte(h.cfg.Token.Key))
@@ -97,24 +98,23 @@ func accessible(c echo.Context) error {
 
 // Restricted admin access !TODO
 func restricted(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	fmt.Println(claims)
-	rowid := claims["sub"].(float64)
+	userid, username, accesslevel := getUserFromToken(c)
 
-	sub := fmt.Sprintf("%g", rowid)
+	if accesslevel < "1" {
+		return c.JSON(http.StatusOK, map[string]string{
+			"name":        username,
+			"id":          userid,
+			"accesslevel": accesslevel,
+		})
+	}
 
-	fmt.Print(sub)
-	return c.JSON(http.StatusOK, map[string]string{
-		"name": name,
-		"id":   sub,
-	})
+	return c.JSON(http.StatusBadRequest, "yOu aReN't AlLod Her")
+
 }
 
 // Allow the user to change his/her name
 func (h *Handler) changeNameHandler(c echo.Context) error {
-	id, _ := getUserFromToken(c)
+	id, _, _ := getUserFromToken(c)
 
 	newname := c.FormValue("newname")
 	password := c.FormValue("password")
@@ -134,9 +134,9 @@ func (h *Handler) changeNameHandler(c echo.Context) error {
 
 // Allow the user to Change their password
 func (h *Handler) changePasswordHandler(c echo.Context) error {
-	id, _ := getUserFromToken(c)
+	id, _, _ := getUserFromToken(c)
 
-	_, username := getUserFromToken(c)
+	_, username, _ := getUserFromToken(c)
 	newPassword := c.FormValue("newpassword")
 
 	err1 := inputRequirements(username, newPassword)
@@ -154,7 +154,7 @@ func (h *Handler) changePasswordHandler(c echo.Context) error {
 
 // Allow the user to delete their own account
 func (h *Handler) deleteAccountHandler(c echo.Context) error {
-	id, _ := getUserFromToken(c)
+	id, _, _ := getUserFromToken(c)
 
 	err := h.us.DeleteAccount(id)
 
@@ -168,15 +168,21 @@ func (h *Handler) deleteAccountHandler(c echo.Context) error {
 // this function returns the user id and username from the token,
 // user id and name here are strings to make it easier to use them
 // in SQL querries
-func getUserFromToken(c echo.Context) (string, string) {
+func getUserFromToken(c echo.Context) (string, string, string) {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	username := claims["name"].(string)
 	rowid := claims["sub"].(float64)
 
-	stringID := fmt.Sprintf("%g", rowid)
+	accesslevel := claims["access"].(float64)
 
-	return stringID, username
+	stringID := fmt.Sprintf("%g", rowid)
+	stringLevel := fmt.Sprintf("%g", accesslevel)
+
+	fmt.Println(stringID)
+	fmt.Println(stringLevel)
+
+	return stringID, username, stringLevel
 }
 
 func inputRequirements(username string, password string) error {
