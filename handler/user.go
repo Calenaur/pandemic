@@ -24,11 +24,11 @@ func (h *Handler) helloTester(c echo.Context) error {
 
 func (h *Handler) userbyid(e echo.Context) error {
 	rowid := e.Param("id")
-	id, err := strconv.ParseInt(rowid, 10, 64)
-	if err != nil {
-		return response.MessageHandler(err, "", e)
-	}
-	user, err := h.us.GetByID(id)
+	// id, err := strconv.ParseInt(rowid, 10, 64)
+	// if err != nil {
+	// 	return response.MessageHandler(err, "", e)
+	// }
+	user, err := h.us.GetByID(rowid)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
 	}
@@ -111,9 +111,29 @@ func restricted(c echo.Context) error {
 			"accesslevel": accesslevel,
 		})
 	}
+	err := errors.New("Restricted access")
 
-	return c.JSON(http.StatusBadRequest, "yOu aReN't AlLod Her")
+	return response.MessageHandler(err, "", c)
 
+}
+
+func (h *Handler) listAll(e echo.Context) error {
+	_, _, accesslevel := getUserFromToken(e)
+	page := e.Param("page")
+	offset, err := strconv.ParseInt(page, 10, 64)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
+	}
+
+	if accesslevel < "1" {
+		users, err := h.us.ListAll(offset)
+		if err != nil {
+			return response.MessageHandler(err, "messageString", e)
+		}
+		return e.JSON(http.StatusOK, users)
+	}
+	err = errors.New("Restricted access")
+	return response.MessageHandler(err, "", e)
 }
 
 // Allow the user to change his/her name

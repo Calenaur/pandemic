@@ -32,7 +32,7 @@ func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 	}
 }
 
-func (us *UserStore) GetByID(id int64) (*model.User, error) {
+func (us *UserStore) GetByID(id string) (*model.User, error) {
 	stmt, err := us.db.Prepare(`
 		SELECT 
 		id, username, accesslevel, balance, manufacture
@@ -79,7 +79,7 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 		return nil, err
 	}
 	q := `
-	SELECT id, username, accesslevel,balance, manufacture
+	SELECT id, username, accesslevel, balance, manufacture
 	FROM user 
 	WHERE username = ?
 	`
@@ -219,4 +219,26 @@ func (us *UserStore) DeleteAccount(id string) error {
 	}
 
 	return err
+}
+
+func (us *UserStore) ListAll(offset int64) (*model.User, error) {
+	// Query
+	q := `
+	SELECT id, username, accesslevel, balance, manufacture
+	FROM user
+	LIMIT 10, ?`
+
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return nil, err
+	}
+
+	defer stmt.Close()
+	row := stmt.QueryRow(offset)
+	user, err := us.CreateUserFromRow(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, err
 }

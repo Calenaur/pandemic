@@ -23,7 +23,7 @@ type Error struct {
 // Unknown Error
 var UNKNOWN_ERROR uint16 = 2999
 
-var DEBUG = false
+var DEBUG = flase
 var localError uint16
 
 func MessageHandler(err error, message string, e echo.Context) error {
@@ -93,6 +93,15 @@ func getStatus(code uint16) int {
 	// TODO Implement all codes
 	statusDict := make(map[uint16]int)
 	statusDict[1062] = http.StatusForbidden
+	statusDict[2000] = http.StatusForbidden
+	statusDict[2001] = http.StatusForbidden
+	statusDict[2010] = http.StatusForbidden
+	statusDict[2011] = http.StatusForbidden
+	statusDict[2012] = http.StatusForbidden
+	statusDict[2100] = http.StatusUnauthorized
+	statusDict[2200] = http.StatusNotFound
+	statusDict[2300] = http.StatusBadRequest
+	statusDict[2400] = http.StatusForbidden
 	if val, ok := statusDict[code]; ok {
 		return val
 	}
@@ -120,6 +129,8 @@ func getLocalError(err error) (uint16, string) {
 	} else if strings.Contains(err.Error(), "invalid syntax") {
 		slicedError := (strings.SplitAfterN(strings.ReplaceAll(err.Error(), "\"", "'"), ": ", 2)[1])
 		return 2300, formatError(slicedError)
+	} else if err.Error() == "Restricted access" {
+		return 2400, err.Error()
 	}
 
 	return 2999, "Unknown error"
