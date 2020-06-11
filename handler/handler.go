@@ -27,7 +27,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/usr/:id", h.userbyid)
 	e.POST("/login", h.loginHandler)
 	e.POST("/signup", h.signupHandler)
-	e.GET("/users/:page", h.listAll)
 	//e.POST("/user/changename", h.changename)
 
 	//Static
@@ -38,6 +37,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	r.Use(middleware.JWT([]byte(key)))
 	e.Use(middleware.CORS())
 	r.GET("", restricted)
+	r.GET("/users/:page", h.listAll)
 
 	//User specific stuff
 	u := e.Group("/user")

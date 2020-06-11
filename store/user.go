@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
-	"github.com/calenaur/pandemic/model"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -219,26 +219,4 @@ func (us *UserStore) DeleteAccount(id string) error {
 	}
 
 	return err
-}
-
-func (us *UserStore) ListAll(offset int64) (*model.User, error) {
-	// Query
-	q := `
-	SELECT id, username, accesslevel, balance, manufacture
-	FROM user
-	LIMIT 10, ?`
-
-	stmt, err := us.db.Prepare(q)
-	if err != nil {
-		return nil, err
-	}
-
-	defer stmt.Close()
-	row := stmt.QueryRow(offset)
-	user, err := us.CreateUserFromRow(row)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, err
 }

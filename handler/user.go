@@ -103,15 +103,19 @@ func accessible(c echo.Context) error {
 // Restricted admin access !TODO
 func restricted(c echo.Context) error {
 	userid, username, accesslevel := getUserFromToken(c)
+	accesslevelInt, err := strconv.ParseInt(accesslevel, 10, 64)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
 
-	if accesslevel < "1" {
+	if accesslevelInt > 99 {
 		return c.JSON(http.StatusOK, map[string]string{
 			"name":        username,
 			"id":          userid,
 			"accesslevel": accesslevel,
 		})
 	}
-	err := errors.New("Restricted access")
+	err = errors.New("Restricted access")
 
 	return response.MessageHandler(err, "", c)
 
@@ -119,16 +123,20 @@ func restricted(c echo.Context) error {
 
 func (h *Handler) listAll(e echo.Context) error {
 	_, _, accesslevel := getUserFromToken(e)
+	accesslevelInt, err := strconv.ParseInt(accesslevel, 10, 64)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
+	}
 	page := e.Param("page")
 	offset, err := strconv.ParseInt(page, 10, 64)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
 	}
 
-	if accesslevel < "1" {
-		users, err := h.us.ListAll(offset)
+	if accesslevelInt > 99 {
+		users, err := h.us.ListAll((offset-1)*10)
 		if err != nil {
-			return response.MessageHandler(err, "messageString", e)
+			return response.MessageHandler(err, "", e)
 		}
 		return e.JSON(http.StatusOK, users)
 	}
