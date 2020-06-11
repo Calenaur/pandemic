@@ -136,6 +136,22 @@ func (h *Handler) listAll(e echo.Context) error {
 	return response.MessageHandler(err, "", e)
 }
 
+// Get user details like Balance and Manufacture
+func (h *Handler) getUserDetailsHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	balance, manufacture, err := h.us.GetUserDetails(id)
+
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"balance":     balance,
+		"manufacture": manufacture,
+	})
+}
+
 // Allow the user to change his/her name
 func (h *Handler) changeNameHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)

@@ -221,6 +221,37 @@ func (us *UserStore) DeleteAccount(id string) error {
 	return err
 }
 
+func (us *UserStore) GetUserDetails(id string) (string, string, error) {
+
+	// Query
+	q := `
+	SELECT balance, manufacture
+	FROM user
+	WHERE id = ?`
+
+	stmt, err1 := us.db.Prepare(q)
+	if err1 != nil {
+		return "", "", err1
+	}
+
+	defer stmt.Close()
+	row := stmt.QueryRow(id)
+
+	balance := ""
+	manufacture := ""
+
+	err2 := row.Scan(
+		&balance,
+
+		&manufacture,
+	)
+	if err2 != nil {
+		return "", "", err2
+	}
+
+	return string(balance), string(manufacture), nil
+}
+
 func (us *UserStore) ListAll(offset int64) (*model.User, error) {
 	// Query
 	q := `
