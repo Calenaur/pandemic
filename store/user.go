@@ -252,6 +252,48 @@ func (us *UserStore) GetUserDetails(id string) (string, string, error) {
 	return string(balance), string(manufacture), nil
 }
 
+func (us *UserStore) UpdateBalance(id string, balance string) error {
+	// Query
+	q := `
+	UPDATE
+	user 
+	SET balance = ?
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(balance, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) UpdateManufacture(id string, manufacture string) error {
+	// Query
+	q := `
+	UPDATE
+	user 
+	SET manufacture = ?
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(manufacture, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (us *UserStore) ListAll(offset int64) (*model.User, error) {
 	// Query
 	q := `

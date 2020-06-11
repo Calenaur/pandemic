@@ -46,5 +46,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/changepassword", h.changePasswordHandler)
 	u.DELETE("/deleteaccount", h.deleteAccountHandler)
 	u.GET("", h.getUserDetailsHandler)
+	u.PUT("/balance", h.updateBalanceHandler)
+	u.PUT("/manufacture", h.updateManufacture)
 
 }

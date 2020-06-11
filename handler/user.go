@@ -1,5 +1,6 @@
 package handler
 
+import "C"
 import (
 	"errors"
 	"fmt"
@@ -150,6 +151,31 @@ func (h *Handler) getUserDetailsHandler(c echo.Context) error {
 		"balance":     balance,
 		"manufacture": manufacture,
 	})
+}
+
+// Update the user Balance
+func (h *Handler) updateBalanceHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	newBalance := c.FormValue("newbalance")
+
+	err := h.us.UpdateBalance(id, newBalance)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	return c.JSON(http.StatusOK, "Balance Changed successfully")
+}
+
+func (h *Handler) updateManufacture(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	newManufacture := c.FormValue("newmanufacture")
+
+	err := h.us.UpdateManufacture(id, newManufacture)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	return c.JSON(http.StatusOK, "Manufacture Changed successfully")
 }
 
 // Allow the user to change his/her name
