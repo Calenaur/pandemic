@@ -293,3 +293,185 @@ func (us *UserStore) UpdateManufacture(id string, manufacture string) error {
 
 	return err
 }
+
+func (us *UserStore) GetDiseases(id string) ([]*model.Disease, error) {
+
+	var (
+		tier        int
+		name        string
+		description string
+		rarity      int
+	)
+	q := `
+	SELECT d.tier , d.name , d.description, d.rarity 
+	FROM disease d, user_disease ud, user u 
+	WHERE d.id = ud.disease AND ud.user = u.id AND u.id = ?`
+
+	rows, err := us.db.Query(q, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	results := make([]*model.Disease, 0, 5)
+	for rows.Next() {
+		err = rows.Scan(&tier, &name, &description, &rarity)
+		if err != nil {
+			return nil, err
+		}
+		//fmt.Println(tier,name, description, rarity)
+		results = append(results, &model.Disease{tier, name, description, rarity})
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println(results)
+
+	return results, err
+}
+
+func (us *UserStore) GetDiseasesList(id string) ([]*model.Disease, error) {
+
+	var (
+		tier        int
+		name        string
+		description string
+		rarity      int
+	)
+	q := `
+	SELECT d.tier , d.name , d.description, d.rarity 
+	FROM disease d, user_disease ud, user u 
+	WHERE d.id = ud.disease AND ud.user = u.id AND u.id != ?`
+
+	rows, err := us.db.Query(q, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	results := make([]*model.Disease, 0, 10)
+	for rows.Next() {
+		err = rows.Scan(&tier, &name, &description, &rarity)
+		if err != nil {
+			return nil, err
+		}
+		//fmt.Println(tier,name, description, rarity)
+		results = append(results, &model.Disease{tier, name, description, rarity})
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println(results)
+
+	return results, err
+}
+
+func (us *UserStore) GetMedications(id string) ([]*model.Medication, error) {
+
+	var (
+		name           string
+		description    string
+		research_cost  int
+		maximum_traits int
+		rarity         int
+		teir           int
+	)
+	q := `
+	SELECT m.name, m.description, m.research_cost, m.maximum_traits, m.rarity, m.tier
+	FROM medication m, user_medication um, user u 
+	WHERE m.id = um.medication AND um.user = u.id AND u.id = ?`
+
+	rows, err := us.db.Query(q, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	results := make([]*model.Medication, 0, 5)
+	for rows.Next() {
+		err = rows.Scan(&name, &description, &research_cost, &maximum_traits, &teir)
+		if err != nil {
+			return nil, err
+		}
+		//fmt.Println(tier,name, description, rarity)
+		results = append(results, &model.Medication{name, description, research_cost, maximum_traits, rarity, teir})
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println(results)
+
+	return results, err
+}
+
+func (us *UserStore) GetMedicationsList(id string) ([]*model.Medication, error) {
+
+	var (
+		name           string
+		description    string
+		research_cost  int
+		maximum_traits int
+		rarity         int
+		teir           int
+	)
+	q := `
+	SELECT m.name, m.description, m.research_cost, m.maximum_traits, m.rarity, m.tier
+	FROM medication m, user_medication um, user u 
+	WHERE m.id = um.medication AND um.user = u.id AND u.id != ?`
+
+	rows, err := us.db.Query(q, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	results := make([]*model.Medication, 0, 10)
+	for rows.Next() {
+		err = rows.Scan(&name, &description, &research_cost, &maximum_traits, &teir)
+		if err != nil {
+			return nil, err
+		}
+		//fmt.Println(tier,name, description, rarity)
+		results = append(results, &model.Medication{name, description, research_cost, maximum_traits, rarity, teir})
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println(results)
+
+	return results, err
+}
+
+func (us *UserStore) ResearchMedication(id string, medication string) error {
+	q := `
+	INSERT INTO user_medication(user, medication) 
+	VALUES ( ?,(SELECT m.id FROM medication m WHERE m.name = "?"  ));
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id, medication)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
