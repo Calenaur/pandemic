@@ -293,25 +293,3 @@ func (us *UserStore) UpdateManufacture(id string, manufacture string) error {
 
 	return err
 }
-
-func (us *UserStore) ListAll(offset int64) (*model.User, error) {
-	// Query
-	q := `
-	SELECT id, username, accesslevel, balance, manufacture
-	FROM user
-	LIMIT 10, ?`
-
-	stmt, err := us.db.Prepare(q)
-	if err != nil {
-		return nil, err
-	}
-
-	defer stmt.Close()
-	row := stmt.QueryRow(offset)
-	user, err := us.CreateUserFromRow(row)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, err
-}
