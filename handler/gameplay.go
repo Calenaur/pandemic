@@ -33,24 +33,24 @@ func (h *Handler) getAvailableDiseasesHandler(c echo.Context) error {
 func (h *Handler) getMedicationsHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
-	diseases, err := h.us.GetDiseasesList(id)
+	medications, err := h.us.GetMedications(id)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
 
-	return c.JSON(http.StatusOK, diseases)
+	return c.JSON(http.StatusOK, medications)
 
 }
 
 func (h *Handler) getAvailableMedicationsHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
-	diseases, err := h.us.GetMedicationsList(id)
+	medications, err := h.us.GetDiseasesList(id)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
 
-	return c.JSON(http.StatusOK, diseases)
+	return c.JSON(http.StatusOK, medications)
 }
 
 func (h *Handler) medicationResearchHandler(c echo.Context) error {

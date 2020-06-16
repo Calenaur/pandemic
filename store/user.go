@@ -399,7 +399,7 @@ func (us *UserStore) GetMedications(id string) ([]*model.Medication, error) {
 	}
 	results := make([]*model.Medication, 0, 5)
 	for rows.Next() {
-		err = rows.Scan(&name, &description, &research_cost, &maximum_traits, &teir)
+		err = rows.Scan(&name, &description, &research_cost, &maximum_traits, &rarity, &teir)
 		if err != nil {
 			return nil, err
 		}
@@ -441,7 +441,7 @@ func (us *UserStore) GetMedicationsList(id string) ([]*model.Medication, error) 
 	}
 	results := make([]*model.Medication, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&name, &description, &research_cost, &maximum_traits, &teir)
+		err = rows.Scan(&name, &research_cost, &description, &maximum_traits, &rarity, &teir)
 		if err != nil {
 			return nil, err
 		}

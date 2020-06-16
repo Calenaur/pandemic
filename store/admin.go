@@ -46,3 +46,46 @@ func (us *UserStore) ListAll(offset int64) ([]*Users, error) {
 
 	return results, err
 }
+
+func (us *UserStore) MakeUserAdmin(userId string) error {
+
+	q := `
+	UPDATE
+	user
+	SET accesslevel = 150
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(userId)
+	if err != nil {
+		return err
+	}
+
+	return err
+
+}
+
+func (us *UserStore) DeleteUser(userId string) error {
+	//TODO make sure its save delete for foreign keys
+	q := `
+	DELETE
+	FROM user
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(userId)
+	if err != nil {
+		return err
+	}
+
+	return err
+
+}

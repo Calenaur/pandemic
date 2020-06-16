@@ -38,6 +38,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.Use(middleware.CORS())
 	r.GET("", restricted)
 	r.GET("/users/:page", h.listAll)
+	r.POST("/makeuseradmin", h.makeUserAdminHandler)
+	r.DELETE("/deleteuser", h.deleteUserByidHandler)
 
 	//User specific stuff
 	u := e.Group("/user")
