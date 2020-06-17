@@ -1,6 +1,5 @@
 package handler
 
-import "C"
 import (
 	"errors"
 	"fmt"
@@ -20,20 +19,6 @@ func (h *Handler) helloTester(c echo.Context) error {
 	username := c.FormValue("username")
 	return c.JSON(http.StatusOK, username)
 
-}
-
-func (h *Handler) userbyid(e echo.Context) error {
-	rowid := e.Param("id")
-	// id, err := strconv.ParseInt(rowid, 10, 64)
-	// if err != nil {
-	// 	return response.MessageHandler(err, "", e)
-	// }
-	user, err := h.us.GetByID(rowid)
-	if err != nil {
-		return response.MessageHandler(err, "", e)
-	}
-
-	return e.JSON(http.StatusOK, user)
 }
 
 func (h *Handler) loginHandler(e echo.Context) error {
@@ -104,13 +89,14 @@ func accessible(c echo.Context) error {
 func (h *Handler) getUserDetailsHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
-	balance, manufacture, err := h.us.GetUserDetails(id)
+	username, balance, manufacture, err := h.us.GetUserDetails(id)
 
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{
+		"username":    username,
 		"balance":     balance,
 		"manufacture": manufacture,
 	})

@@ -221,35 +221,36 @@ func (us *UserStore) DeleteAccount(id string) error {
 	return err
 }
 
-func (us *UserStore) GetUserDetails(id string) (string, string, error) {
+func (us *UserStore) GetUserDetails(id string) (string, string, string, error) {
 
 	// Query
 	q := `
-	SELECT balance, manufacture
+	SELECT username, balance, manufacture
 	FROM user
 	WHERE id = ?`
 
-	stmt, err1 := us.db.Prepare(q)
-	if err1 != nil {
-		return "", "", err1
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return "", "", "", err
 	}
 
 	defer stmt.Close()
 	row := stmt.QueryRow(id)
 
+	username := ""
 	balance := ""
 	manufacture := ""
 
-	err2 := row.Scan(
+	err = row.Scan(
+		&username,
 		&balance,
-
 		&manufacture,
 	)
-	if err2 != nil {
-		return "", "", err2
+	if err != nil {
+		return "", "", "", err
 	}
 
-	return string(balance), string(manufacture), nil
+	return string(username), string(balance), string(manufacture), err
 }
 
 func (us *UserStore) UpdateBalance(id string, balance string) error {
