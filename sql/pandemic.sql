@@ -147,6 +147,18 @@ CREATE TABLE IF NOT EXISTS `user_medication` (
   CONSTRAINT `FK_user_medication_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `user_friend` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user` varchar(64) NOT NULL,
+  `friend` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_user_friend_user_id` (`user`),
+  KEY `FK_user_friend_friend_id` (`friend`),
+  CONSTRAINT `FK_user_friend_id` FOREIGN KEY (`friend`) REFERENCES `user` (`id`) ON UPDATE NO ACTION,
+  CONSTRAINT `FK_user_friend_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 CREATE TABLE IF NOT EXISTS `user_medication_trait` (
   `user_medication` int(11) NOT NULL,
   `medication_trait` int(11) NOT NULL,

@@ -116,6 +116,19 @@ func (h *Handler) getUserDetailsHandler(c echo.Context) error {
 	})
 }
 
+func (h *Handler) getFriendsHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	friends, err := h.us.ShowFriends(id)
+
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, friends,
+	)
+}
+
 // Update the user Balance
 func (h *Handler) updateBalanceHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)

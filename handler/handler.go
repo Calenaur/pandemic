@@ -55,6 +55,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("/medications", h.getMedicationsHandler)
 	u.GET("/available_medications", h.getAvailableMedicationsHandler)
 	u.PUT("/research_medication", h.medicationResearchHandler)
+	u.GET("/friends",h.getFriendsHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
 
 }

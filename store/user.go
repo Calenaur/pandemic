@@ -475,3 +475,41 @@ func (us *UserStore) ResearchMedication(id string, medication string) error {
 
 	return err
 }
+
+func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
+
+	var (
+		name           string
+		balance			int64
+	)
+	q := `
+	SELECT f.username, f.balance
+	FROM user u, user_friend uf,user f 
+	WHERE u.id = uf.user AND uf.friend = f.id AND u.id = ?`
+
+	rows, err := us.db.Query(q, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	results := make([]*model.Friend,0,10)
+	for rows.Next() {
+		err = rows.Scan(&name, &balance)
+		if err != nil {
+			return nil, err
+		}
+		//fmt.Println(tier,name, description, rarity)
+		results = append(results, &model.Friend{name, balance})
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println(results)
+
+	return results, err
+}
