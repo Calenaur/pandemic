@@ -60,6 +60,7 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 		&user.Username,
 		// &user.Password,
 		&user.AccessLevel,
+		&user.Tier,
 		&user.Balance,
 
 		// &user.SessionDate,
@@ -79,7 +80,7 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 		return nil, err
 	}
 	q := `
-	SELECT id, username, accesslevel, balance, manufacture
+	SELECT id, username, accesslevel,tier, balance, manufacture
 	FROM user 
 	WHERE username = ?
 	`
@@ -480,8 +481,8 @@ func (us *UserStore) ResearchMedication(id string, medication string) error {
 func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 
 	var (
-		name           string
-		balance			int64
+		name    string
+		balance int64
 	)
 	q := `
 	SELECT f.username, f.balance
@@ -496,7 +497,7 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 	if err != nil {
 		return nil, err
 	}
-	results := make([]*model.Friend,0,10)
+	results := make([]*model.Friend, 0, 10)
 	for rows.Next() {
 		err = rows.Scan(&name, &balance)
 		if err != nil {
@@ -513,4 +514,25 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 	//fmt.Println(results)
 
 	return results, err
+}
+
+func (us *UserStore) UpdateTier(id string, tier string) error {
+	// Query
+	q := `
+	UPDATE
+	user 
+	SET balance = ?
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(tier, id)
+	if err != nil {
+		return err
+	}
+
+	return err
 }

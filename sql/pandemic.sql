@@ -111,6 +111,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `username` varchar(64) NOT NULL UNIQUE,
   `password` varchar(64) NOT NULL,
   `accesslevel` int(11) DEFAULT 1,
+  `tier` int(11) DEFAULT 1,
   `balance` int(20) DEFAULT 0,
   `manufacture` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
