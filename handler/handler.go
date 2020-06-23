@@ -24,7 +24,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Pages
 	//e.GET("/", h.DebugHandler)
 	e.POST("/hello", h.helloTester)
-	e.GET("/usr/:id", h.userbyid)
 	e.POST("/login", h.loginHandler)
 	e.POST("/signup", h.signupHandler)
 	//e.POST("/user/changename", h.changename)
@@ -37,6 +36,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	r.Use(middleware.JWT([]byte(key)))
 	e.Use(middleware.CORS())
 	r.GET("", restricted)
+	r.GET("/user/:id", h.userbyid)
 	r.GET("/users/:page", h.listAll)
 	r.POST("/makeuseradmin", h.makeUserAdminHandler)
 	r.DELETE("/deleteuser", h.deleteUserByidHandler)

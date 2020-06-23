@@ -2,11 +2,34 @@ package handler
 
 import (
 	"errors"
-	"github.com/Calenaur/pandemic/handler/response"
-	"github.com/labstack/echo"
 	"net/http"
 	"strconv"
+
+	"github.com/Calenaur/pandemic/handler/response"
+	"github.com/labstack/echo"
 )
+
+func (h *Handler) userbyid(e echo.Context) error {
+	rowid := e.Param("id")
+	_, _, accesslevel := getUserFromToken(e)
+	accesslevelInt, err := strconv.ParseInt(accesslevel, 10, 64)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
+	}
+	// id, err := strconv.ParseInt(rowid, 10, 64)
+	// if err != nil {
+	// 	return response.MessageHandler(err, "", e)
+	// }
+	if accesslevelInt > 99 {
+		user, err := h.us.GetByID(rowid)
+		if err != nil {
+			return response.MessageHandler(err, "", e)
+		}
+		return e.JSON(http.StatusOK, user)
+	}
+	err = errors.New("Restricted access")
+	return response.MessageHandler(err, "", e)
+}
 
 func (h *Handler) listAll(e echo.Context) error {
 	_, _, accesslevel := getUserFromToken(e)
