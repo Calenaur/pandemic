@@ -37,7 +37,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.Use(middleware.CORS())
 	r.GET("", restricted)
 	r.GET("/user/:id", h.userbyid)
-	r.GET("/users/:page", h.listAll)
+	r.GET("/users", h.listAll)
 	r.POST("/makeuseradmin", h.makeUserAdminHandler)
 	r.DELETE("/deleteuser", h.deleteUserByidHandler)
 

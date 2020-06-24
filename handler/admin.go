@@ -32,29 +32,29 @@ func (h *Handler) userbyid(e echo.Context) error {
 }
 
 func (h *Handler) listAll(e echo.Context) error {
-	showresults := "10"
+	size := "10"
 	_, _, accesslevel := getUserFromToken(e)
 	accesslevelInt, err := strconv.ParseInt(accesslevel, 10, 64)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
 	}
-	page := e.Param("page")
+	page := e.QueryParam("page")
 	offset, err := strconv.ParseInt(page, 10, 64)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
 	}
 
-	if e.FormValue("showresults") != "" {
-		showresults = e.FormValue("showresults")
+	if e.QueryParam("size") != "" {
+		size = e.QueryParam("size")
 	}
 
-	showresultsInt, err := strconv.ParseInt(showresults, 10, 64)
+	sizeInt, err := strconv.ParseInt(size, 10, 64)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
 	}
 
 	if accesslevelInt > 99 {
-		users, err := h.us.ListAll((offset-1)*showresultsInt, showresultsInt)
+		users, err := h.us.ListAll((offset-1)*sizeInt, sizeInt)
 		if err != nil {
 			return response.MessageHandler(err, "", e)
 		}
