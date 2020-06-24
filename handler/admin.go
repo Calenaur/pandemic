@@ -33,12 +33,15 @@ func (h *Handler) userbyid(e echo.Context) error {
 
 func (h *Handler) listAll(e echo.Context) error {
 	size := "10"
+	page := "1"
 	_, _, accesslevel := getUserFromToken(e)
 	accesslevelInt, err := strconv.ParseInt(accesslevel, 10, 64)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
 	}
-	page := e.QueryParam("page")
+	if e.QueryParam("page") != "" {
+		page = e.QueryParam("page")
+	}
 	offset, err := strconv.ParseInt(page, 10, 64)
 	if err != nil {
 		return response.MessageHandler(err, "", e)
