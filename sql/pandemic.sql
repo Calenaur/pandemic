@@ -127,6 +127,17 @@ CREATE TABLE IF NOT EXISTS `user_disease` (
   CONSTRAINT `FK_user_disease_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `user_tier` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `user` varchar(64) NOT NULL,
+    `tier` int(11) NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `FK_user_tier_tier_id` (`tier`),
+    KEY `FK_user_tier_user_id` (`user`),
+    CONSTRAINT `FK_user_tier_tier_id` FOREIGN KEY (`tier`) REFERENCES `tier` (`id`) ON UPDATE NO ACTION,
+    CONSTRAINT `FK_user_tier_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `user_event` (
   `user` varchar(64) NOT NULL,
   `event` int(11) NOT NULL,
@@ -149,10 +160,13 @@ CREATE TABLE IF NOT EXISTS `user_medication` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user_friend` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` varchar(64) NOT NULL,
   `friend` varchar(64) NOT NULL,
-  PRIMARY KEY (`id`),
+#   0 - pending
+#   1 - accepted
+#   2 - declined
+  `status` int(11),
+  PRIMARY KEY (`user`, `friend`),
   KEY `FK_user_friend_user_id` (`user`),
   KEY `FK_user_friend_friend_id` (`friend`),
   CONSTRAINT `FK_user_friend_id` FOREIGN KEY (`friend`) REFERENCES `user` (`id`) ON UPDATE NO ACTION,

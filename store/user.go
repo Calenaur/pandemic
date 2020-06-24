@@ -35,7 +35,7 @@ func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 func (us *UserStore) GetByID(id string) (*model.User, error) {
 	stmt, err := us.db.Prepare(`
 		SELECT 
-		id, username, accesslevel, balance, manufacture
+		id, username, accesslevel, tier, balance, manufacture
 		FROM user
 		WHERE id = ?
 	`)
@@ -483,11 +483,12 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 	var (
 		name    string
 		balance int64
+		tier    int64
 	)
 	q := `
-	SELECT f.username, f.balance
+	SELECT f.username, f.balance, f.tier
 	FROM user u, user_friend uf,user f 
-	WHERE u.id = uf.user AND uf.friend = f.id AND u.id = ?`
+	WHERE u.id = uf.user AND uf.friend = f.id AND u.id = ? AND uf.status = 1 `
 
 	rows, err := us.db.Query(q, id)
 	if err != nil {
@@ -504,7 +505,7 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 			return nil, err
 		}
 		//fmt.Println(tier,name, description, rarity)
-		results = append(results, &model.Friend{name, balance})
+		results = append(results, &model.Friend{name, balance, tier})
 	}
 	err = rows.Err()
 	if err != nil {
@@ -521,7 +522,7 @@ func (us *UserStore) UpdateTier(id string, tier string) error {
 	q := `
 	UPDATE
 	user 
-	SET balance = ?
+	SET tier = ?
 	WHERE id = ?
 	`
 	stmt, err := us.db.Prepare(q)
@@ -530,6 +531,46 @@ func (us *UserStore) UpdateTier(id string, tier string) error {
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(tier, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) SendFriendRequest(id string, friendName string) error {
+	// Query
+	q1 := `INSERT INTO 
+	user_friend (user, friend) 
+	VALUES (?,(
+	SELECT id FROM user WHERE username=?))`
+
+	stmt1, err := us.db.Prepare(q1)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(id, friendName)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) RespondFriendRequest(id string, friendName string, response int64) error {
+	// Query
+	q := `UPDATE 
+	user_friend
+	SET status = ?
+	WHERE user = ? AND friend = (SELECT id FROM user WHERE username = ?)`
+
+	stmt1, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(id, friendName)
 	if err != nil {
 		return err
 	}

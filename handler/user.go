@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 	"unicode"
 
@@ -111,8 +112,7 @@ func (h *Handler) getFriendsHandler(c echo.Context) error {
 		return response.MessageHandler(err, "", c)
 	}
 
-	return c.JSON(http.StatusOK, friends,
-	)
+	return c.JSON(http.StatusOK, friends)
 }
 
 // Update the user Balance
@@ -192,6 +192,39 @@ func (h *Handler) deleteAccountHandler(c echo.Context) error {
 	}
 	return response.MessageHandler(err, "Account deleted successfully", c)
 	// return c.JSON(http.StatusOK, "Account deleted successfully")
+}
+
+func (h *Handler) sendFriendRequestHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	friend := c.FormValue("friend")
+
+	err := h.us.SendFriendRequest(id, friend)
+	if err != nil {
+		return response.MessageHandler(err, "No user by this name was found", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+	}
+
+	return c.JSON(http.StatusOK, "Friend request send successfully")
+}
+
+func (h *Handler) responseFriendRequestHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	friend := c.FormValue("friend")
+	rowResponse := c.FormValue("response")
+
+	respons, erro := strconv.ParseInt(rowResponse, 10, 64)
+	if erro != nil {
+		return response.MessageHandler(erro, "Invalid response", c)
+	}
+
+	// Typo intended
+	err := h.us.RespondFriendRequest(id, friend, respons)
+	if err != nil {
+		return response.MessageHandler(err, "Something went wrong", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+	}
+
+	return c.JSON(http.StatusOK, "Responded successfully")
 }
 
 // this function returns the user id and username from the token,
