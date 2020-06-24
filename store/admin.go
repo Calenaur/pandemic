@@ -8,7 +8,7 @@ type Users struct {
 	Manufacture int    `json:"manufacture"`
 }
 
-func (us *UserStore) ListAll(offset int64) ([]*Users, error) {
+func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 	// Query
 	var (
 		// users       []Users
@@ -21,9 +21,9 @@ func (us *UserStore) ListAll(offset int64) ([]*Users, error) {
 	q := `
 	SELECT id, username, accesslevel, balance, manufacture
 	FROM user
-	LIMIT 10 OFFSET ?;`
+	LIMIT ? OFFSET ?;`
 
-	rows, err := us.db.Query(q, offset)
+	rows, err := us.db.Query(q, limit, offset)
 	if err != nil {
 		return nil, err
 	}
