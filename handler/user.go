@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 	"unicode"
+	"strconv"
 
 	"github.com/Calenaur/pandemic/handler/response"
 
@@ -294,4 +295,30 @@ next:
 		return errors.New("password must have at least one " + name + " character")
 	}
 	return nil
+}
+
+
+func (h *Handler) getUserMedicationsHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	userMedications, err := h.us.GetUserMedications(id)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, userMedications)
+}
+
+func (h *Handler) getUserMedicationByIDHandler(c echo.Context) error {
+	userID, _, _ := getUserFromToken(c)
+	userMedicationID, err := strconv.Atoi(c.Param("id"));
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	userMedications, err := h.us.GetUserMedicationByID(userID, userMedicationID)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, userMedications)
 }
