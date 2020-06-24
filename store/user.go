@@ -16,15 +16,6 @@ type UserStore struct {
 	cfg *config.Config
 }
 
-type Message struct {
-	Error *Error `json:"error"`
-}
-
-type Error struct {
-	code    string `json:"code"`
-	message string `json:"message"`
-}
-
 func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 	return &UserStore{
 		db:  db,
@@ -376,89 +367,104 @@ func (us *UserStore) GetDiseasesList(id string) ([]*model.Disease, error) {
 	return results, err
 }
 
-func (us *UserStore) GetMedications(id string) ([]*model.Medication, error) {
-
-	var (
-		name           string
-		description    string
-		research_cost  int
-		maximum_traits int
-		rarity         int
-		teir           int
-	)
-	q := `
-	SELECT m.name, m.description, m.research_cost, m.maximum_traits, m.rarity, m.tier
-	FROM medication m, user_medication um, user u 
-	WHERE m.id = um.medication AND um.user = u.id AND u.id = ?`
-
-	rows, err := us.db.Query(q, id)
+func (us *UserStore) GetTraitsForUserMedication(userMedication int) ([]int, error) {
+	stmt, err := us.db.Prepare(`
+		SELECT umt.medication_trait FROM user_medication_trait umt 
+		WHERE umt.user_medication = ?;
+	`)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
+	defer stmt.Close()
+	rows, err := stmt.Query(userMedication)
 	if err != nil {
 		return nil, err
 	}
-	results := make([]*model.Medication, 0, 5)
+
+	defer rows.Close();
+	traits := []int{}
 	for rows.Next() {
-		err = rows.Scan(&name, &description, &research_cost, &maximum_traits, &rarity, &teir)
+		var trait int
+		err := rows.Scan(
+			&trait,
+		)
 		if err != nil {
 			return nil, err
 		}
-		//fmt.Println(tier,name, description, rarity)
-		results = append(results, &model.Medication{name, description, research_cost, maximum_traits, rarity, teir})
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
+
+		traits = append(traits, trait)
 	}
 
-	//fmt.Println(results)
-
-	return results, err
+	return traits, err
 }
 
-func (us *UserStore) GetMedicationsList(id string) ([]*model.Medication, error) {
-
-	var (
-		name           string
-		description    string
-		research_cost  int
-		maximum_traits int
-		rarity         int
-		teir           int
-	)
-	q := `
-	SELECT m.name, m.description, m.research_cost, m.maximum_traits, m.rarity, m.tier
-	FROM medication m, user_medication um, user u 
-	WHERE m.id = um.medication AND um.user = u.id AND u.id != ?`
-
-	rows, err := us.db.Query(q, id)
+func (us *UserStore) GetUserMedications(userID string) ([]*model.UserMedication, error) {
+	stmt, err := us.db.Prepare(`
+		SELECT um.id, um.medication FROM user_medication um 
+		WHERE um.user = ?;
+	`)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
+	defer stmt.Close()
+	rows, err := stmt.Query(userID)
+	defer rows.Close();
 	if err != nil {
 		return nil, err
 	}
-	results := make([]*model.Medication, 0, 10)
+
+	userMedications := []*model.UserMedication{}
 	for rows.Next() {
-		err = rows.Scan(&name, &research_cost, &description, &maximum_traits, &rarity, &teir)
+		userMedication := &model.UserMedication{}
+		err := rows.Scan(
+			&userMedication.ID,
+			&userMedication.Medication,
+		)
 		if err != nil {
 			return nil, err
 		}
-		//fmt.Println(tier,name, description, rarity)
-		results = append(results, &model.Medication{name, description, research_cost, maximum_traits, rarity, teir})
+
+		userMedication.Traits, err = us.GetTraitsForUserMedication(userMedication.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		userMedications = append(userMedications, userMedication)
 	}
-	err = rows.Err()
+
+	return userMedications, nil
+}
+
+func (us *UserStore) GetUserMedicationByID(userID string, userMedicationID int) (*model.UserMedication, error) {
+	stmt, err := us.db.Prepare(`
+		SELECT um.medication FROM user_medication um 
+		WHERE um.user = ? AND um.id = ?;
+	`)
 	if err != nil {
 		return nil, err
 	}
 
-	//fmt.Println(results)
+	defer stmt.Close()
+	row := stmt.QueryRow(userID, userMedicationID)
+	userMedication := &model.UserMedication{}
+	err = row.Scan(
+		&userMedication.Medication,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-	return results, err
+	userMedication.ID = userMedicationID;
+	userMedication.Traits, err = us.GetTraitsForUserMedication(userMedicationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return userMedication, nil
 }
+
 
 func (us *UserStore) ResearchMedication(id string, medication string) error {
 	q := `
