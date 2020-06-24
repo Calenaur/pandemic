@@ -94,7 +94,7 @@ func (h *Handler) deleteUserByidHandler(c echo.Context) error {
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
-	userId := c.FormValue("userid")
+	userId := c.Param("id")
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
