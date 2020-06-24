@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strconv"
 	"time"
 	"unicode"
 
@@ -20,20 +19,6 @@ func (h *Handler) helloTester(c echo.Context) error {
 	username := c.FormValue("username")
 	return c.JSON(http.StatusOK, username)
 
-}
-
-func (h *Handler) userbyid(e echo.Context) error {
-	rowid := e.Param("id")
-	id, err := strconv.ParseInt(rowid, 10, 64)
-	if err != nil {
-		return response.MessageHandler(err, "", e)
-	}
-	user, err := h.us.GetByID(id)
-	if err != nil {
-		return response.MessageHandler(err, "", e)
-	}
-
-	return e.JSON(http.StatusOK, user)
 }
 
 func (h *Handler) loginHandler(e echo.Context) error {
@@ -100,25 +85,65 @@ func accessible(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Accessible")
 }
 
-// Restricted admin access !TODO
-func restricted(c echo.Context) error {
-	userid, username, accesslevel := getUserFromToken(c)
+// Get user details like Balance and Manufacture
+func (h *Handler) getUserDetailsHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
 
-	if accesslevel < "1" {
-		return c.JSON(http.StatusOK, map[string]string{
-			"name":        username,
-			"id":          userid,
-			"accesslevel": accesslevel,
-		})
+	username, balance, manufacture, err := h.us.GetUserDetails(id)
+
+	if err != nil {
+		return response.MessageHandler(err, "", c)
 	}
 
-	return c.JSON(http.StatusBadRequest, "yOu aReN't AlLod Her")
+	return c.JSON(http.StatusOK, map[string]string{
+		"username":    username,
+		"balance":     balance,
+		"manufacture": manufacture,
+	})
+}
 
+func (h *Handler) getFriendsHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	friends, err := h.us.ShowFriends(id)
+
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, friends,
+	)
+}
+
+// Update the user Balance
+func (h *Handler) updateBalanceHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	newBalance := c.FormValue("newbalance")
+
+	err := h.us.UpdateBalance(id, newBalance)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	return c.JSON(http.StatusOK, "Balance Changed successfully")
+}
+
+func (h *Handler) updateManufacture(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	newManufacture := c.FormValue("newmanufacture")
+
+	err := h.us.UpdateManufacture(id, newManufacture)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	return c.JSON(http.StatusOK, "Manufacture Changed successfully")
 }
 
 // Allow the user to change his/her name
 func (h *Handler) changeNameHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
+	// fmt.Println(id)
 
 	newname := c.FormValue("newname")
 
@@ -176,17 +201,17 @@ func getUserFromToken(c echo.Context) (string, string, string) {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	username := claims["name"].(string)
-	rowid := claims["sub"].(float64)
+	rowid := claims["sub"].(string)
 
 	accesslevel := claims["access"].(float64)
 
-	stringID := fmt.Sprintf("%g", rowid)
+	// stringID := fmt.Sprintf("%g", rowid)
 	stringLevel := fmt.Sprintf("%g", accesslevel)
 
-	fmt.Println(stringID)
-	fmt.Println(stringLevel)
+	// fmt.Println(stringID)
+	// fmt.Println(stringLevel)
 
-	return stringID, username, stringLevel
+	return rowid, username, stringLevel
 }
 
 func usernameRequirements(username string) error {

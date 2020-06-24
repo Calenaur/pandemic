@@ -12,6 +12,8 @@
   
   2300 - parsing error; invalid syntax (id moet int zijn)
 
+	2400 - Restricted access; need higher access level
+
   2999 - Unknown error
 	
 1062 - Duplicate entry SQL error

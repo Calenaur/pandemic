@@ -107,17 +107,18 @@ CREATE TABLE IF NOT EXISTS `tier` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` varchar(64) NOT NULL UNIQUE,
   `username` varchar(64) NOT NULL UNIQUE,
   `password` varchar(64) NOT NULL,
-  `accesslevel` int(11) NOT NULL,
-  `balance` int(20) DEFAULT NULL,
-  `manufacture` int(11) DEFAULT NULL,
+  `accesslevel` int(11) DEFAULT 1,
+  `tier` int(11) DEFAULT 1,
+  `balance` int(20) DEFAULT 0,
+  `manufacture` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user_disease` (
-  `user` int(11) NOT NULL,
+  `user` varchar(64) NOT NULL,
   `disease` int(11) NOT NULL,
   PRIMARY KEY (`user`,`disease`),
   KEY `FK_user_disease_disease_id` (`disease`),
@@ -127,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `user_disease` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `user_event` (
-  `user` int(11) NOT NULL,
+  `user` varchar(64) NOT NULL,
   `event` int(11) NOT NULL,
   PRIMARY KEY (`user`,`event`),
   KEY `FK_user_event_event_id` (`event`),
@@ -138,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `user_event` (
 
 CREATE TABLE IF NOT EXISTS `user_medication` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user` int(11) NOT NULL,
+  `user` varchar(64) NOT NULL,
   `medication` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_user_medication_user_id` (`user`),
@@ -146,6 +147,18 @@ CREATE TABLE IF NOT EXISTS `user_medication` (
   CONSTRAINT `FK_user_medication_medication_id` FOREIGN KEY (`medication`) REFERENCES `medication` (`id`) ON UPDATE NO ACTION,
   CONSTRAINT `FK_user_medication_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `user_friend` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user` varchar(64) NOT NULL,
+  `friend` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_user_friend_user_id` (`user`),
+  KEY `FK_user_friend_friend_id` (`friend`),
+  CONSTRAINT `FK_user_friend_id` FOREIGN KEY (`friend`) REFERENCES `user` (`id`) ON UPDATE NO ACTION,
+  CONSTRAINT `FK_user_friend_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE IF NOT EXISTS `user_medication_trait` (
   `user_medication` int(11) NOT NULL,
@@ -159,7 +172,7 @@ CREATE TABLE IF NOT EXISTS `user_medication_trait` (
 
 CREATE TABLE IF NOT EXISTS `user_researcher` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user` int(11) DEFAULT NULL,
+  `user` varchar(64) DEFAULT NULL,
   `researcher` int(11) DEFAULT NULL,
   `name` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),

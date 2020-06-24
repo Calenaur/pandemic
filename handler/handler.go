@@ -24,12 +24,9 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Pages
 	//e.GET("/", h.DebugHandler)
 	e.POST("/hello", h.helloTester)
-	e.GET("/usr/:id", h.userbyid)
 	e.POST("/login", h.loginHandler)
 	e.POST("/signup", h.signupHandler)
-	// e.PUT("/user/changename", h.changeNameHandler)
-	// e.PUT("/user/changepassword", h.changePasswordHandler)
-	// e.DELETE("/user/delete", h.deleteAccountHandler)
+	//e.POST("/user/changename", h.changename)
 
 	//Static
 	e.File("/static/css", "static/css/style.css")
@@ -39,6 +36,10 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	r.Use(middleware.JWT([]byte(key)))
 	e.Use(middleware.CORS())
 	r.GET("", restricted)
+	r.GET("/user/:id", h.userbyid)
+	r.GET("/users", h.listAll)
+	r.POST("/makeuseradmin", h.makeUserAdminHandler)
+	r.DELETE("/deleteuser", h.deleteUserByidHandler)
 
 	//User specific stuff
 	u := e.Group("/user")
@@ -46,5 +47,15 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/changename", h.changeNameHandler)
 	u.PUT("/changepassword", h.changePasswordHandler)
 	u.DELETE("/deleteaccount", h.deleteAccountHandler)
+	u.GET("", h.getUserDetailsHandler)
+	u.PUT("/balance", h.updateBalanceHandler)
+	u.PUT("/manufacture", h.updateManufacture)
+	u.GET("/diseases", h.getDiseasesHandler)
+	u.GET("/available_diseases", h.getAvailableDiseasesHandler)
+	u.GET("/medications", h.getMedicationsHandler)
+	u.GET("/available_medications", h.getAvailableMedicationsHandler)
+	u.PUT("/research_medication", h.medicationResearchHandler)
+	u.GET("/friends",h.getFriendsHandler)
+	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
 
 }
