@@ -382,7 +382,7 @@ func (us *UserStore) GetTraitsForUserMedication(userMedication int) ([]int, erro
 		return nil, err
 	}
 
-	defer rows.Close();
+	defer rows.Close()
 	traits := []int{}
 	for rows.Next() {
 		var trait int
@@ -410,7 +410,7 @@ func (us *UserStore) GetUserMedications(userID string) ([]*model.UserMedication,
 
 	defer stmt.Close()
 	rows, err := stmt.Query(userID)
-	defer rows.Close();
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +456,7 @@ func (us *UserStore) GetUserMedicationByID(userID string, userMedicationID int) 
 		return nil, err
 	}
 
-	userMedication.ID = userMedicationID;
+	userMedication.ID = userMedicationID
 	userMedication.Traits, err = us.GetTraitsForUserMedication(userMedicationID)
 	if err != nil {
 		return nil, err
@@ -464,7 +464,6 @@ func (us *UserStore) GetUserMedicationByID(userID string, userMedicationID int) 
 
 	return userMedication, nil
 }
-
 
 func (us *UserStore) ResearchMedication(id string, medication string) error {
 	q := `
@@ -492,9 +491,11 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 		tier    int64
 	)
 	q := `
-	SELECT f.username, f.balance, f.tier
-	FROM user u, user_friend uf,user f 
-	WHERE u.id = uf.user AND uf.friend = f.id AND u.id = ? AND uf.status = 1 `
+	SELECT f.username, f.balance, t.name
+	FROM user u, user_friend uf, user f , tier t
+	WHERE u.id = uf.user AND uf.friend = f.id
+	AND f.tier = t.id
+	AND u.id = ? AND uf.status = 1`
 
 	rows, err := us.db.Query(q, id)
 	if err != nil {
@@ -506,7 +507,7 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 	}
 	results := make([]*model.Friend, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&name, &balance)
+		err = rows.Scan(&name, &balance, &tier)
 		if err != nil {
 			return nil, err
 		}
@@ -598,6 +599,27 @@ func (us *UserStore) DeleteFriend(id string, friendName string) error {
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(id, friendName, friendName, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) SendFriendBalance(id string, friendName string, balance string) error {
+	// TODO this method is unsave fix please
+	// Query
+	q := `
+	UPDATE 
+	user SET balance = (balance = ?)
+	WHERE username = ?`
+
+	stmt1, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(balance, friendName)
 	if err != nil {
 		return err
 	}
