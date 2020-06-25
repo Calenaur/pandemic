@@ -16,15 +16,6 @@ type UserStore struct {
 	cfg *config.Config
 }
 
-type Message struct {
-	Error *Error `json:"error"`
-}
-
-type Error struct {
-	code    string `json:"code"`
-	message string `json:"message"`
-}
-
 func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 	return &UserStore{
 		db:  db,
@@ -35,7 +26,7 @@ func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 func (us *UserStore) GetByID(id string) (*model.User, error) {
 	stmt, err := us.db.Prepare(`
 		SELECT 
-		id, username, accesslevel, balance, manufacture
+		id, username, accesslevel, tier, balance, manufacture
 		FROM user
 		WHERE id = ?
 	`)
@@ -376,89 +367,104 @@ func (us *UserStore) GetDiseasesList(id string) ([]*model.Disease, error) {
 	return results, err
 }
 
-func (us *UserStore) GetMedications(id string) ([]*model.Medication, error) {
-
-	var (
-		name           string
-		description    string
-		research_cost  int
-		maximum_traits int
-		rarity         int
-		teir           int
-	)
-	q := `
-	SELECT m.name, m.description, m.research_cost, m.maximum_traits, m.rarity, m.tier
-	FROM medication m, user_medication um, user u 
-	WHERE m.id = um.medication AND um.user = u.id AND u.id = ?`
-
-	rows, err := us.db.Query(q, id)
+func (us *UserStore) GetTraitsForUserMedication(userMedication int) ([]int, error) {
+	stmt, err := us.db.Prepare(`
+		SELECT umt.medication_trait FROM user_medication_trait umt 
+		WHERE umt.user_medication = ?;
+	`)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
+	defer stmt.Close()
+	rows, err := stmt.Query(userMedication)
 	if err != nil {
 		return nil, err
 	}
-	results := make([]*model.Medication, 0, 5)
+
+	defer rows.Close();
+	traits := []int{}
 	for rows.Next() {
-		err = rows.Scan(&name, &description, &research_cost, &maximum_traits, &rarity, &teir)
+		var trait int
+		err := rows.Scan(
+			&trait,
+		)
 		if err != nil {
 			return nil, err
 		}
-		//fmt.Println(tier,name, description, rarity)
-		results = append(results, &model.Medication{name, description, research_cost, maximum_traits, rarity, teir})
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
+
+		traits = append(traits, trait)
 	}
 
-	//fmt.Println(results)
-
-	return results, err
+	return traits, err
 }
 
-func (us *UserStore) GetMedicationsList(id string) ([]*model.Medication, error) {
-
-	var (
-		name           string
-		description    string
-		research_cost  int
-		maximum_traits int
-		rarity         int
-		teir           int
-	)
-	q := `
-	SELECT m.name, m.description, m.research_cost, m.maximum_traits, m.rarity, m.tier
-	FROM medication m, user_medication um, user u 
-	WHERE m.id = um.medication AND um.user = u.id AND u.id != ?`
-
-	rows, err := us.db.Query(q, id)
+func (us *UserStore) GetUserMedications(userID string) ([]*model.UserMedication, error) {
+	stmt, err := us.db.Prepare(`
+		SELECT um.id, um.medication FROM user_medication um 
+		WHERE um.user = ?;
+	`)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
+	defer stmt.Close()
+	rows, err := stmt.Query(userID)
+	defer rows.Close();
 	if err != nil {
 		return nil, err
 	}
-	results := make([]*model.Medication, 0, 10)
+
+	userMedications := []*model.UserMedication{}
 	for rows.Next() {
-		err = rows.Scan(&name, &research_cost, &description, &maximum_traits, &rarity, &teir)
+		userMedication := &model.UserMedication{}
+		err := rows.Scan(
+			&userMedication.ID,
+			&userMedication.Medication,
+		)
 		if err != nil {
 			return nil, err
 		}
-		//fmt.Println(tier,name, description, rarity)
-		results = append(results, &model.Medication{name, description, research_cost, maximum_traits, rarity, teir})
+
+		userMedication.Traits, err = us.GetTraitsForUserMedication(userMedication.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		userMedications = append(userMedications, userMedication)
 	}
-	err = rows.Err()
+
+	return userMedications, nil
+}
+
+func (us *UserStore) GetUserMedicationByID(userID string, userMedicationID int) (*model.UserMedication, error) {
+	stmt, err := us.db.Prepare(`
+		SELECT um.medication FROM user_medication um 
+		WHERE um.user = ? AND um.id = ?;
+	`)
 	if err != nil {
 		return nil, err
 	}
 
-	//fmt.Println(results)
+	defer stmt.Close()
+	row := stmt.QueryRow(userID, userMedicationID)
+	userMedication := &model.UserMedication{}
+	err = row.Scan(
+		&userMedication.Medication,
+	)
+	if err != nil {
+		return nil, err
+	}
 
-	return results, err
+	userMedication.ID = userMedicationID;
+	userMedication.Traits, err = us.GetTraitsForUserMedication(userMedicationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return userMedication, nil
 }
+
 
 func (us *UserStore) ResearchMedication(id string, medication string) error {
 	q := `
@@ -483,11 +489,12 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 	var (
 		name    string
 		balance int64
+		tier    int64
 	)
 	q := `
-	SELECT f.username, f.balance
+	SELECT f.username, f.balance, f.tier
 	FROM user u, user_friend uf,user f 
-	WHERE u.id = uf.user AND uf.friend = f.id AND u.id = ?`
+	WHERE u.id = uf.user AND uf.friend = f.id AND u.id = ? AND uf.status = 1 `
 
 	rows, err := us.db.Query(q, id)
 	if err != nil {
@@ -504,7 +511,7 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 			return nil, err
 		}
 		//fmt.Println(tier,name, description, rarity)
-		results = append(results, &model.Friend{name, balance})
+		results = append(results, &model.Friend{name, balance, tier})
 	}
 	err = rows.Err()
 	if err != nil {
@@ -521,7 +528,7 @@ func (us *UserStore) UpdateTier(id string, tier string) error {
 	q := `
 	UPDATE
 	user 
-	SET balance = ?
+	SET tier = ?
 	WHERE id = ?
 	`
 	stmt, err := us.db.Prepare(q)
@@ -530,6 +537,67 @@ func (us *UserStore) UpdateTier(id string, tier string) error {
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(tier, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) SendFriendRequest(id string, friendName string) error {
+	// Query
+	q1 := `INSERT INTO 
+	user_friend (user, friend) 
+	VALUES (?,(
+	SELECT id FROM user WHERE username=?))`
+
+	stmt1, err := us.db.Prepare(q1)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(id, friendName)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) RespondFriendRequest(id string, friendName string, response int64) error {
+	// Query
+	q := `UPDATE 
+	user_friend
+	SET status = ?
+	WHERE user = ? AND friend = (SELECT id FROM user WHERE username = ?)`
+
+	stmt1, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(id, friendName)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us *UserStore) DeleteFriend(id string, friendName string) error {
+	// Query
+	q := `DELETE FROM 
+	user_friend
+	WHERE ( user = ? AND friend = (
+	SELECT id FROM user WHERE username= ? ))
+	OR ( user = (SELECT id FROM user WHERE username = ? ) AND friend = ? )`
+
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id, friendName, friendName, id)
 	if err != nil {
 		return err
 	}

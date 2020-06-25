@@ -52,7 +52,7 @@ func (us *UserStore) MakeUserAdmin(userId string) error {
 	q := `
 	UPDATE
 	user
-	SET accesslevel = 150
+	SET accesslevel = 100
 	WHERE id = ?
 	`
 	stmt, err := us.db.Prepare(q)

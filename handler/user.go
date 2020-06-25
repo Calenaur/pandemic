@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 	"unicode"
 
 	"github.com/Calenaur/pandemic/handler/response"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
@@ -111,8 +111,7 @@ func (h *Handler) getFriendsHandler(c echo.Context) error {
 		return response.MessageHandler(err, "", c)
 	}
 
-	return c.JSON(http.StatusOK, friends,
-	)
+	return c.JSON(http.StatusOK, friends)
 }
 
 // Update the user Balance
@@ -194,6 +193,53 @@ func (h *Handler) deleteAccountHandler(c echo.Context) error {
 	// return c.JSON(http.StatusOK, "Account deleted successfully")
 }
 
+func (h *Handler) sendFriendRequestHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	friend := c.FormValue("friend")
+
+	err := h.us.SendFriendRequest(id, friend)
+	if err != nil {
+		return response.MessageHandler(err, "No user by this name was found", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+	}
+
+	return c.JSON(http.StatusOK, "Friend request send successfully")
+}
+
+func (h *Handler) responseFriendRequestHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	friend := c.FormValue("friend")
+	rowResponse := c.FormValue("response")
+
+	respons, erro := strconv.ParseInt(rowResponse, 10, 64)
+	if erro != nil {
+		return response.MessageHandler(erro, "Invalid response", c)
+	}
+
+	// Typo intended
+	err := h.us.RespondFriendRequest(id, friend, respons)
+	if err != nil {
+		return response.MessageHandler(err, "Something went wrong", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+	}
+
+	return c.JSON(http.StatusOK, "Responded successfully")
+}
+
+func (h *Handler) deleteFriendHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	friend := c.FormValue("friend")
+
+	// Typo intended
+	err := h.us.DeleteFriend(id, friend)
+	if err != nil {
+		return response.MessageHandler(err, "Something went wrong", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+	}
+
+	return c.JSON(http.StatusOK, "Friend Deleted Successfully")
+}
+
 // this function returns the user id and username from the token,
 // user id and name here are strings to make it easier to use them
 // in SQL querries
@@ -247,4 +293,30 @@ next:
 		return errors.New("password must have at least one " + name + " character")
 	}
 	return nil
+}
+
+
+func (h *Handler) getUserMedicationsHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	userMedications, err := h.us.GetUserMedications(id)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, userMedications)
+}
+
+func (h *Handler) getUserMedicationByIDHandler(c echo.Context) error {
+	userID, _, _ := getUserFromToken(c)
+	userMedicationID, err := strconv.Atoi(c.Param("id"));
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	userMedications, err := h.us.GetUserMedicationByID(userID, userMedicationID)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, userMedications)
 }

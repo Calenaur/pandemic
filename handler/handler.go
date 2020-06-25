@@ -9,12 +9,14 @@ import (
 
 type Handler struct {
 	us  *store.UserStore
+	ms  *store.MedicationStore
 	cfg *config.Config
 }
 
-func New(userStore *store.UserStore, config *config.Config) *Handler {
+func New(userStore *store.UserStore, medicationStore *store.MedicationStore, config *config.Config) *Handler {
 	return &Handler{
 		us:  userStore,
+		ms:  medicationStore,
 		cfg: config,
 	}
 }
@@ -34,7 +36,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Restricted access, only for admin !TODO
 	r := e.Group("/restricted")
 	r.Use(middleware.JWT([]byte(key)))
-	e.Use(middleware.CORS())
+	r.Use(middleware.CORS())
 	r.GET("", restricted)
 	r.GET("/user/:id", h.userbyid)
 	r.GET("/users", h.listAll)
@@ -52,10 +54,22 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/manufacture", h.updateManufacture)
 	u.GET("/diseases", h.getDiseasesHandler)
 	u.GET("/available_diseases", h.getAvailableDiseasesHandler)
-	u.GET("/medications", h.getMedicationsHandler)
-	u.GET("/available_medications", h.getAvailableMedicationsHandler)
 	u.PUT("/research_medication", h.medicationResearchHandler)
 	u.GET("/friends", h.getFriendsHandler)
+	u.POST("/friend_request", h.sendFriendRequestHandler)
+	u.PUT("/friend_response", h.responseFriendRequestHandler)
+	u.DELETE("/friend", h.deleteFriendHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
+
+	//User Medication
+	u.GET("/medication", h.getUserMedicationsHandler)
+	u.GET("/medication/:id", h.getUserMedicationByIDHandler)
+
+	//Medication
+	m := e.Group("/medication")
+	m.GET("", h.getMedicationsHandler)
+	m.GET("/:id", h.getMedicationByIDHandler)
+	m.GET("/trait", h.getMedicationTraitsHandler)
+	m.GET("/trait/:id", h.getMedicationTraitByIDHandler)
 
 }
