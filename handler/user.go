@@ -8,10 +8,8 @@ import (
 	"strconv"
 	"time"
 	"unicode"
-	"strconv"
 
 	"github.com/Calenaur/pandemic/handler/response"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
