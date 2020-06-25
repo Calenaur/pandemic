@@ -25,6 +25,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	key := h.cfg.Token.Key
 	//Pages
 	//e.GET("/", h.DebugHandler)
+	e.Use(middleware.CORS())
 	e.POST("/hello", h.helloTester)
 	e.POST("/login", h.loginHandler)
 	e.POST("/signup", h.signupHandler)
@@ -36,7 +37,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Restricted access, only for admin !TODO
 	r := e.Group("/restricted")
 	r.Use(middleware.JWT([]byte(key)))
-	r.Use(middleware.CORS())
 	r.GET("", restricted)
 	r.GET("/user/:id", h.userbyid)
 	r.GET("/users", h.listAll)
