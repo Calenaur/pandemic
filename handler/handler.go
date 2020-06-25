@@ -11,6 +11,7 @@ type Handler struct {
 	us  *store.UserStore
 	ms  *store.MedicationStore
 	cfg *config.Config
+	es  *store.EventStore
 }
 
 func New(userStore *store.UserStore, medicationStore *store.MedicationStore, config *config.Config) *Handler {
@@ -62,6 +63,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/gift_friend", h.giftFriendHandler)
 	//u.PUT("/change_tier", h.changeTierHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
+	u.GET("/event", h.getEventsHandler)
+	u.GET("/event/:id", h.getEventByIDHandler)
 
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)
