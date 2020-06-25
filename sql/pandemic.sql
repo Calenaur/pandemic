@@ -198,6 +198,9 @@ CREATE TABLE IF NOT EXISTS `user_tier` (
 
 
 
+/*!40000 ALTER TABLE `user_disease` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_disease` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `user_event` (
   `user` varchar(64) NOT NULL,
   `event` int(11) NOT NULL,
