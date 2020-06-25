@@ -72,7 +72,7 @@ INSERT INTO `medication` (`id`, `name`, `description`, `base_value`, `research_c
 	(1, 'Acetaminophen', 'Acetaminophen is a drug used to treat mild to moderate pain.', 5, 100, 1, 2),
 	(2, 'Ibuprofen', 'Ibuprofen reduces inflammation and pain in the body.', 7, 200, 1, 2),
 	(3, 'Aspirin', 'Aspirin can be used to treat mild pain, fever or inflammation.', 6, 150, 1, 2),
-	(4, 'Adderall', 'Adderall is used to treat attention deficit hyperactivity disorder (AHDH) and narcolepsy.', 15, 1000, 1, 3),
+	(4, 'Adderall', 'Adderall is used to treat attention deficit hyperactivity disorder (ADHD) and narcolepsy.', 15, 1000, 1, 3),
 	(5, 'Multi-Vitamin', 'Multi-Vitamin is used to treat vitamin deficiency.', 2, 50, 0, 1),
 	(6, 'Vitamin D', 'Vitamin D is used to treat vitamin D deficiency.', 1, 20, 0, 1),
 	(7, 'Penicillin G benzathine', 'Penicillin is an antibiotic that is used to treat many types of mild to moderate infections.', 50, 5000, 3, 4),
