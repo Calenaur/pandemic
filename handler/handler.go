@@ -57,7 +57,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/research_medication", h.medicationResearchHandler)
 	u.GET("/friends", h.getFriendsHandler)
 	u.POST("/friend_request", h.sendFriendRequestHandler)
-	u.POST("/friend_response", h.responseFriendRequestHandler)
+	u.PUT("/friend_response", h.responseFriendRequestHandler)
+	u.DELETE("/friend", h.deleteFriendHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
 
 }

@@ -227,6 +227,20 @@ func (h *Handler) responseFriendRequestHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Responded successfully")
 }
 
+func (h *Handler) deleteFriendHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	friend := c.FormValue("friend")
+
+	// Typo intended
+	err := h.us.DeleteFriend(id, friend)
+	if err != nil {
+		return response.MessageHandler(err, "Something went wrong", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+	}
+
+	return c.JSON(http.StatusOK, "Friend Deleted Successfully")
+}
+
 // this function returns the user id and username from the token,
 // user id and name here are strings to make it easier to use them
 // in SQL querries

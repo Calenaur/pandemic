@@ -577,3 +577,23 @@ func (us *UserStore) RespondFriendRequest(id string, friendName string, response
 
 	return err
 }
+
+func (us *UserStore) DeleteFriend(id string, friendName string) error {
+	// Query
+	q1 := `DELETE FROM 
+	user_friend
+	WHERE user = ?, AND friend = (
+	SELECT id FROM user WHERE username=?)`
+
+	stmt1, err := us.db.Prepare(q1)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(id, friendName)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
