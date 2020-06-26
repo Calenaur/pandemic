@@ -47,6 +47,19 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 	return results, err
 }
 
+func (us *UserStore) UserCount() (int, error) {
+	var count int
+	q := `
+	SELECT COUNT(*)
+	FROM user;`
+
+	err := us.db.QueryRow(q).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, err
+}
+
 func (us *UserStore) MakeUserAdmin(userId string) error {
 
 	q := `
