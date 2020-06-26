@@ -10,16 +10,18 @@ import (
 type Handler struct {
 	us  *store.UserStore
 	ms  *store.MedicationStore
-	cfg *config.Config
 	es  *store.EventStore
+	ds  *store.DiseaseStore
+	cfg *config.Config
 }
 
 func New(userStore *store.UserStore, medicationStore *store.MedicationStore,
-	eventStore *store.EventStore, config *config.Config) *Handler {
+	eventStore *store.EventStore, diseaseStore *store.DiseaseStore, config *config.Config) *Handler {
 	return &Handler{
 		us:  userStore,
 		ms:  medicationStore,
 		es:  eventStore,
+		ds:  diseaseStore,
 		cfg: config,
 	}
 }
@@ -55,7 +57,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("", h.getUserDetailsHandler)
 	u.PUT("/balance", h.updateBalanceHandler)
 	u.PUT("/manufacture", h.updateManufacture)
-	u.GET("/diseases", h.getDiseasesHandler)
+	u.GET("/diseases", h.getDiseasesForUserHandler)
 	u.GET("/available_diseases", h.getAvailableDiseasesHandler)
 	u.PUT("/research_medication", h.medicationResearchHandler)
 	u.GET("/friends", h.getFriendsHandler)
@@ -65,8 +67,14 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/gift_friend", h.giftFriendHandler)
 	//u.PUT("/change_tier", h.changeTierHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
+
+	//User Event
 	u.GET("/event", h.getEventsHandler)
 	u.GET("/event/:id", h.getEventByIDHandler)
+
+	//User Disease
+	u.GET("/disease", h.getDiseasesHandler)
+	u.GET("/disease/:id", h.getDiseaseByIDHandler)
 
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)
