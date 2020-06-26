@@ -3,9 +3,8 @@ package store
 import (
 	"database/sql"
 
+	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
-	"github.com/calenaur/pandemic/model"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 type EventStore struct {

@@ -10,7 +10,7 @@ import (
 func (h *Handler) getEventsHandler(c echo.Context) error {
 	events, err := h.es.GetEvents()
 	if err != nil {
-		return response.MessageHandler(err, "", c)
+		return response.MessageHandler(err, "This isn't working", c)
 	}
 
 	return c.JSON(http.StatusOK, events)

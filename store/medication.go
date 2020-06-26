@@ -3,9 +3,8 @@ package store
 import (
 	"database/sql"
 
+	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
-	"github.com/calenaur/pandemic/model"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 type MedicationStore struct {
@@ -24,11 +23,11 @@ func (ms *MedicationStore) CreateMedicationFromRow(row *sql.Row) (*model.Medicat
 	medication := &model.Medication{}
 	err := row.Scan(
 		&medication.ID,
-		&medication.Name, 
-		&medication.Description, 
-		&medication.ResearchCost, 
-		&medication.MaximumTraits, 
-		&medication.BaseValue, 
+		&medication.Name,
+		&medication.Description,
+		&medication.ResearchCost,
+		&medication.MaximumTraits,
+		&medication.BaseValue,
 		&medication.Tier,
 	)
 	if err != nil {
@@ -44,11 +43,11 @@ func (ms *MedicationStore) CreateMedicationsFromRows(rows *sql.Rows) ([]*model.M
 		medication := &model.Medication{}
 		err := rows.Scan(
 			&medication.ID,
-			&medication.Name, 
-			&medication.Description, 
-			&medication.ResearchCost, 
-			&medication.MaximumTraits, 
-			&medication.BaseValue, 
+			&medication.Name,
+			&medication.Description,
+			&medication.ResearchCost,
+			&medication.MaximumTraits,
+			&medication.BaseValue,
 			&medication.Tier,
 		)
 		if err != nil {
@@ -65,8 +64,8 @@ func (ms *MedicationStore) CreateMedicationTraitFromRow(row *sql.Row) (*model.Me
 	medicationTrait := &model.MedicationTrait{}
 	err := row.Scan(
 		&medicationTrait.ID,
-		&medicationTrait.Name, 
-		&medicationTrait.Description, 
+		&medicationTrait.Name,
+		&medicationTrait.Description,
 		&medicationTrait.Tier,
 	)
 	if err != nil {
@@ -82,8 +81,8 @@ func (ms *MedicationStore) CreateMedicationTraitsFromRows(rows *sql.Rows) ([]*mo
 		medicationTrait := &model.MedicationTrait{}
 		err := rows.Scan(
 			&medicationTrait.ID,
-			&medicationTrait.Name, 
-			&medicationTrait.Description, 
+			&medicationTrait.Name,
+			&medicationTrait.Description,
 			&medicationTrait.Tier,
 		)
 		if err != nil {
@@ -127,7 +126,7 @@ func (ms *MedicationStore) GetMedications() ([]*model.Medication, error) {
 	}
 
 	defer rows.Close()
-	return ms.CreateMedicationsFromRows(rows);
+	return ms.CreateMedicationsFromRows(rows)
 }
 
 func (ms *MedicationStore) GetTraitByID(id int) (*model.MedicationTrait, error) {
@@ -162,5 +161,5 @@ func (ms *MedicationStore) GetTraits() ([]*model.MedicationTrait, error) {
 	}
 
 	defer rows.Close()
-	return ms.CreateMedicationTraitsFromRows(rows);
+	return ms.CreateMedicationTraitsFromRows(rows)
 }

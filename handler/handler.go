@@ -14,10 +14,12 @@ type Handler struct {
 	es  *store.EventStore
 }
 
-func New(userStore *store.UserStore, medicationStore *store.MedicationStore, config *config.Config) *Handler {
+func New(userStore *store.UserStore, medicationStore *store.MedicationStore,
+	eventStore *store.EventStore, config *config.Config) *Handler {
 	return &Handler{
 		us:  userStore,
 		ms:  medicationStore,
+		es:  eventStore,
 		cfg: config,
 	}
 }

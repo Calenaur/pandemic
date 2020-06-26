@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
-	"github.com/calenaur/pandemic/model"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
