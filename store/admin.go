@@ -4,6 +4,7 @@ type Users struct {
 	ID          string `json:"id"`
 	Username    string `json:"username"`
 	AccessLevel int    `json:"accesslevel"`
+	Tier        int    `json:"tier"`
 	Balance     int    `json:"balance"`
 	Manufacture int    `json:"manufacture"`
 }
@@ -15,11 +16,12 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 		id          string
 		username    string
 		accesslevel int
+		tier        int
 		balance     int
 		manufacture int
 	)
 	q := `
-	SELECT id, username, accesslevel, balance, manufacture
+	SELECT id, username, accesslevel, tier, balance, manufacture
 	FROM user
 	LIMIT ? OFFSET ?;`
 
@@ -33,11 +35,11 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 	}
 	results := make([]*Users, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&id, &username, &accesslevel, &balance, &manufacture)
+		err = rows.Scan(&id, &username, &accesslevel, &tier, &balance, &manufacture)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &Users{id, username, accesslevel, balance, manufacture})
+		results = append(results, &Users{id, username, accesslevel, tier, balance, manufacture})
 	}
 	err = rows.Err()
 	if err != nil {
