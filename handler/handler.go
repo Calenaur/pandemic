@@ -43,6 +43,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	r.GET("", restricted)
 	r.GET("/user/:id", h.userbyid)
 	r.GET("/users", h.listAll)
+	r.GET("/usercount", h.userCount)
 	r.PUT("/makeuseradmin", h.makeUserAdminHandler)
 	r.DELETE("/user/:id", h.deleteUserByidHandler)
 

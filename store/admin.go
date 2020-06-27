@@ -4,7 +4,7 @@ type Users struct {
 	ID          string `json:"id"`
 	Username    string `json:"username"`
 	AccessLevel int    `json:"accesslevel"`
-	Tier        int    `json:tier`
+	Tier        int    `json:"tier"`
 	Balance     int    `json:"balance"`
 	Manufacture int    `json:"manufacture"`
 }
@@ -35,7 +35,7 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 	}
 	results := make([]*Users, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&id, &username, &accesslevel, &balance, &manufacture)
+		err = rows.Scan(&id, &username, &accesslevel, &tier, &balance, &manufacture)
 		if err != nil {
 			return nil, err
 		}
@@ -47,6 +47,19 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 	}
 
 	return results, err
+}
+
+func (us *UserStore) UserCount() (int, error) {
+	var count int
+	q := `
+	SELECT COUNT(*)
+	FROM user;`
+
+	err := us.db.QueryRow(q).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, err
 }
 
 func (us *UserStore) MakeUserAdmin(userId string) error {
