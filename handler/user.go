@@ -203,7 +203,8 @@ func (h *Handler) sendFriendRequestHandler(c echo.Context) error {
 		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
 	}
 
-	return c.JSON(http.StatusOK, "Friend request send successfully")
+	//return c.JSON(http.StatusOK, "Friend request send successfully")
+	return response.MessageHandler(err, "Friend request sent", c)
 }
 
 func (h *Handler) responseFriendRequestHandler(c echo.Context) error {
@@ -237,7 +238,23 @@ func (h *Handler) deleteFriendHandler(c echo.Context) error {
 		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
 	}
 
-	return c.JSON(http.StatusOK, "Friend Deleted Successfully")
+	return response.MessageHandler(err, "Friend deleted", c)
+}
+
+func (h *Handler) giftFriendHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	friend := c.FormValue("friend")
+	balance := c.FormValue("balance")
+
+	// Typo intended
+	err := h.us.SendFriendBalance(id, friend, balance)
+	if err != nil {
+		return response.MessageHandler(err, "Something went wrong", c)
+		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
+	}
+
+	//return c.JSON(http.StatusOK, "Balance send su")
+	return response.MessageHandler(err, "Balance sent", c)
 }
 
 // this function returns the user id and username from the token,
@@ -295,7 +312,6 @@ next:
 	return nil
 }
 
-
 func (h *Handler) getUserMedicationsHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 	userMedications, err := h.us.GetUserMedications(id)
@@ -308,7 +324,7 @@ func (h *Handler) getUserMedicationsHandler(c echo.Context) error {
 
 func (h *Handler) getUserMedicationByIDHandler(c echo.Context) error {
 	userID, _, _ := getUserFromToken(c)
-	userMedicationID, err := strconv.Atoi(c.Param("id"));
+	userMedicationID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}

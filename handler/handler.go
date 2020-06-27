@@ -11,12 +11,15 @@ type Handler struct {
 	us  *store.UserStore
 	ms  *store.MedicationStore
 	cfg *config.Config
+	es  *store.EventStore
 }
 
-func New(userStore *store.UserStore, medicationStore *store.MedicationStore, config *config.Config) *Handler {
+func New(userStore *store.UserStore, medicationStore *store.MedicationStore,
+	eventStore *store.EventStore, config *config.Config) *Handler {
 	return &Handler{
 		us:  userStore,
 		ms:  medicationStore,
+		es:  eventStore,
 		cfg: config,
 	}
 }
@@ -56,11 +59,23 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("/diseases", h.getDiseasesHandler)
 	u.GET("/available_diseases", h.getAvailableDiseasesHandler)
 	u.PUT("/research_medication", h.medicationResearchHandler)
-	u.GET("/friends", h.getFriendsHandler)
-	u.POST("/friend_request", h.sendFriendRequestHandler)
-	u.PUT("/friend_response", h.responseFriendRequestHandler)
+
+	//User Friend
+	u.GET("/friend", h.getFriendsHandler)
+	u.POST("/friend", h.sendFriendRequestHandler)
+	u.PUT("/friend", h.responseFriendRequestHandler)
 	u.DELETE("/friend", h.deleteFriendHandler)
+	u.POST("/friend/gift", h.giftFriendHandler)
+
+	//u.PUT("/change_tier", h.changeTierHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
+
+	//User Event
+	u.GET("/event", h.getEventsHandler)
+	u.GET("/event/:id", h.getEventByIDHandler)
+	u.GET("/event/mine", h.getMyEventsHandler)
+	u.PUT("/event", h.subscribeToEventHandler)
+	u.DELETE("/event", h.unSubscribeToEventHandler)
 
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)
@@ -68,6 +83,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	//Medication
 	m := e.Group("/medication")
+	m.Use(middleware.JWT([]byte(key)))
 	m.GET("", h.getMedicationsHandler)
 	m.GET("/:id", h.getMedicationByIDHandler)
 	m.GET("/trait", h.getMedicationTraitsHandler)
