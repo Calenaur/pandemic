@@ -7,7 +7,7 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 	var (
 		name    string
 		balance int64
-		tier    int64
+		tier    string
 	)
 	q := `
 	SELECT f.username, f.balance, t.name
@@ -46,9 +46,9 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 func (us *UserStore) SendFriendRequest(id string, friendName string) error {
 	// Query
 	q1 := `INSERT INTO 
-	user_friend (user, friend) 
+	user_friend (user, friend, status) 
 	VALUES (?,(
-	SELECT id FROM user WHERE username=?))`
+	SELECT id FROM user WHERE username=?), 0)`
 
 	stmt1, err := us.db.Prepare(q1)
 	if err != nil {
@@ -67,15 +67,15 @@ func (us *UserStore) RespondFriendRequest(id string, friendName string, response
 	// Query
 	q := `UPDATE 
 	user_friend
-	SET status = ?
-	WHERE user = ? AND friend = (SELECT id FROM user WHERE username = ?)`
+	SET status = 1
+	WHERE (user = ? AND friend = (SELECT id FROM user WHERE username = ?)) OR (user = (SELECT id FROM user WHERE username = ?) AND friend = ?) `
 
 	stmt1, err := us.db.Prepare(q)
 	if err != nil {
 		return err
 	}
 	defer stmt1.Close()
-	_, err = stmt1.Exec(id, friendName)
+	_, err = stmt1.Exec(response, id, friendName, friendName, id)
 	if err != nil {
 		return err
 	}
@@ -105,11 +105,11 @@ func (us *UserStore) DeleteFriend(id string, friendName string) error {
 }
 
 func (us *UserStore) SendFriendBalance(id string, friendName string, balance string) error {
-	// TODO this method is unsave fix please
+	// TODO fixme
 	// Query
 	q := `
 	UPDATE 
-	user SET balance = (balance = ?)
+	user SET balance = (balance + ?)
 	WHERE username = ?`
 
 	stmt1, err := us.db.Prepare(q)

@@ -38,7 +38,7 @@ func (ms *MedicationStore) CreateMedicationFromRow(row *sql.Row) (*model.Medicat
 }
 
 func (ms *MedicationStore) CreateMedicationsFromRows(rows *sql.Rows) ([]*model.Medication, error) {
-	medications := []*model.Medication{}
+	var medications []*model.Medication
 	for rows.Next() {
 		medication := &model.Medication{}
 		err := rows.Scan(

@@ -36,7 +36,7 @@ func (es *EventStore) CreateEventFromRow(row *sql.Row) (*model.Event, error) {
 }
 
 func (es *EventStore) CreateEventsFromRows(rows *sql.Rows) ([]*model.Event, error) {
-	events := []*model.Event{}
+	var events []*model.Event
 	for rows.Next() {
 		event := &model.Event{}
 		err := rows.Scan(
@@ -104,6 +104,62 @@ func (es *EventStore) UpdateTier(id string, tier string) error {
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(tier, id)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (es *EventStore) SubscribeToEvent(id string, event string) error {
+	// Query
+	q := `
+	INSERT
+	INTO
+	user_event( user , event )
+	VALUES( ? , ? )
+	`
+	stmt, err := es.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id, event)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (es *EventStore) GetMyEvents(id string) ([]*model.Event, error) {
+	q := `
+	SELECT e.id, e.name, e.description, e.rarity, e.tier
+	FROM event e, user u, user_event ue
+	WHERE u.id = ue.user AND ue.event = e.id AND u.id = ?`
+	rows, err := es.db.Query(q, id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	return es.CreateEventsFromRows(rows)
+}
+
+func (es *EventStore) UnSubscribeToEvent(id string, event string) error {
+	// Query
+	q := `
+	DELETE
+	FROM
+	user_event
+	WHERE user =  ? AND event = ? 
+	`
+	stmt, err := es.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id, event)
 	if err != nil {
 		return err
 	}
