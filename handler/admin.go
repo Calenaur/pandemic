@@ -67,6 +67,25 @@ func (h *Handler) listAll(e echo.Context) error {
 	return response.MessageHandler(err, "", e)
 }
 
+func (h *Handler) userCount(e echo.Context) error {
+	_, _, accesslevel := getUserFromToken(e)
+	accesslevelInt, err := strconv.ParseInt(accesslevel, 10, 64)
+	if err != nil {
+		return response.MessageHandler(err, "", e)
+	}
+	if accesslevelInt > 99 {
+		count, err := h.us.UserCount()
+		if err != nil {
+			return response.MessageHandler(err, "", e)
+		}
+		return e.JSON(http.StatusOK, map[string]int{
+			"count": count,
+		})
+	}
+	err = errors.New("Restricted access")
+	return response.MessageHandler(err, "", e)
+}
+
 // Restricted admin access !TODO
 func restricted(c echo.Context) error {
 	userid, username, accesslevel := getUserFromToken(c)
