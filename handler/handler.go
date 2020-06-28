@@ -71,9 +71,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
 
 	//User Event
-	u.GET("/event", h.getEventsHandler)
-	u.GET("/event/:id", h.getEventByIDHandler)
-	u.GET("/event/mine", h.getMyEventsHandler)
+	u.GET("/event", h.getMyEventsHandler)
 	u.PUT("/event", h.subscribeToEventHandler)
 	u.DELETE("/event", h.unSubscribeToEventHandler)
 
@@ -88,5 +86,11 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	m.GET("/:id", h.getMedicationByIDHandler)
 	m.GET("/trait", h.getMedicationTraitsHandler)
 	m.GET("/trait/:id", h.getMedicationTraitByIDHandler)
+
+	//Event
+	ev := e.Group("/event")
+	ev.Use(middleware.JWT([]byte(key)))
+	ev.GET("", h.getEventsHandler)
+	ev.GET("/:id", h.getEventByIDHandler)
 
 }
