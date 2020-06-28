@@ -105,22 +105,61 @@ func (us *UserStore) DeleteFriend(id string, friendName string) error {
 }
 
 func (us *UserStore) SendFriendBalance(id string, friendName string, balance string) error {
-	// TODO fixme
+	var status string
 	// Query
 	q := `
-	UPDATE 
-	user SET balance = (balance + ?)
-	WHERE username = ?`
+	SELECT status
+	FROM user_friend
+	WHERE (user = ? AND friend = (SELECT id FROM user WHERE username = ?)) OR (user = (SELECT id FROM user WHERE username = ?) AND friend = ?)
+`
 
-	stmt1, err := us.db.Prepare(q)
+	row, err := us.db.Query(q, id, friendName, friendName, id)
 	if err != nil {
 		return err
 	}
-	defer stmt1.Close()
-	_, err = stmt1.Exec(balance, friendName)
+	defer row.Close()
 	if err != nil {
 		return err
 	}
+	for row.Next() {
+		err = row.Scan(&status)
+		if err != nil {
+			return err
+		}
+	}
+	//println(status)
+	if status == "1" {
+		//Also Query
+		q0 := `
+		UPDATE
+		user SET balance = (balance + ?)
+		WHERE username = ?`
 
+		stmt0, err := us.db.Prepare(q0)
+		if err != nil {
+			return err
+		}
+		defer stmt0.Close()
+		_, err = stmt0.Exec(balance, friendName)
+		if err != nil {
+			return err
+		}
+
+		q1 := `
+		UPDATE
+		user SET balance = (balance - ?)
+		WHERE id = ?`
+
+		stmt1, err := us.db.Prepare(q1)
+		if err != nil {
+			return err
+		}
+		defer stmt1.Close()
+		_, err = stmt1.Exec(balance, id)
+		if err != nil {
+			return err
+		}
+
+	}
 	return err
 }
