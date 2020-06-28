@@ -121,3 +121,43 @@ func (ds *DiseaseStore) GetDiseasesList(id string) ([]*model.Disease, error) {
 	defer rows.Close()
 	return ds.CreateDiseasesFromRows(rows)
 }
+
+func (ds *DiseaseStore) SelectDisease(id string, disease string) error {
+	q := `
+	INSERT
+	INTO
+	user_disease
+	VAlUES (? , ?)
+	`
+	stmt1, err := ds.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(id, disease)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (ds *DiseaseStore) UnSelectDisease(id string, disease string) error {
+	q := `
+	DELETE
+	FROM
+	user_disease
+	WHERE user = ? AND disease = ?
+	`
+	stmt1, err := ds.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	defer stmt1.Close()
+	_, err = stmt1.Exec(id, disease)
+	if err != nil {
+		return err
+	}
+
+	return err
+}

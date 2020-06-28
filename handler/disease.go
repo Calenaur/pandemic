@@ -54,3 +54,25 @@ func (h *Handler) getAvailableDiseasesHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, diseases)
 
 }
+
+func (h *Handler) selectDiseaseHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	disease := c.FormValue("disease")
+
+	err := h.ds.SelectDisease(id, disease)
+	if err != nil {
+		return response.MessageHandler(err, "Couldn't select disease: "+disease, c)
+	}
+	return response.MessageHandler(err, "Disease: "+disease+" is selected", c)
+}
+
+func (h *Handler) unSelectDiseaseHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+	disease := c.FormValue("disease")
+
+	err := h.ds.UnSelectDisease(id, disease)
+	if err != nil {
+		return response.MessageHandler(err, "Couldn't Delete disease: "+disease, c)
+	}
+	return response.MessageHandler(err, "Disease: "+disease+" is Deleted", c)
+}

@@ -57,8 +57,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("", h.getUserDetailsHandler)
 	u.PUT("/balance", h.updateBalanceHandler)
 	u.PUT("/manufacture", h.updateManufacture)
-	u.GET("/diseases", h.getDiseasesForUserHandler)
-	u.GET("/available_diseases", h.getAvailableDiseasesHandler)
+
 	u.PUT("/research_medication", h.medicationResearchHandler)
 	u.GET("/friends", h.getFriendsHandler)
 	u.POST("/friend_request", h.sendFriendRequestHandler)
@@ -75,6 +74,10 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//User Disease
 	u.GET("/disease", h.getDiseasesHandler)
 	u.GET("/disease/:id", h.getDiseaseByIDHandler)
+	u.GET("/disease/mine", h.getDiseasesForUserHandler)
+	u.GET("/disease/available", h.getAvailableDiseasesHandler)
+	u.POST("/disease", h.selectDiseaseHandler)
+	u.DELETE("/disease", h.unSelectDiseaseHandler)
 
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)

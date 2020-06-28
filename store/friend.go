@@ -65,11 +65,10 @@ func (us *UserStore) SendFriendRequest(id string, friendName string) error {
 
 func (us *UserStore) RespondFriendRequest(id string, friendName string, response int64) error {
 	// Query
-	q := `UPDATE 
+	var q = `UPDATE 
 	user_friend
 	SET status = ?
 	WHERE user = ? AND friend = (SELECT id FROM user WHERE username = ?)`
-
 	stmt1, err := us.db.Prepare(q)
 	if err != nil {
 		return err
@@ -85,12 +84,11 @@ func (us *UserStore) RespondFriendRequest(id string, friendName string, response
 
 func (us *UserStore) DeleteFriend(id string, friendName string) error {
 	// Query
-	q := `DELETE FROM 
+	var q = `DELETE FROM 
 	user_friend
 	WHERE ( user = ? AND friend = (
 	SELECT id FROM user WHERE username= ? ))
 	OR ( user = (SELECT id FROM user WHERE username = ? ) AND friend = ? )`
-
 	stmt, err := us.db.Prepare(q)
 	if err != nil {
 		return err
