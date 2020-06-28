@@ -10,13 +10,15 @@ import (
 type Handler struct {
 	us  *store.UserStore
 	ms  *store.MedicationStore
+	ud  *store.UserdataStore
 	cfg *config.Config
 }
 
-func New(userStore *store.UserStore, medicationStore *store.MedicationStore, config *config.Config) *Handler {
+func New(userStore *store.UserStore, medicationStore *store.MedicationStore, userdataStore *store.UserdataStore, config *config.Config) *Handler {
 	return &Handler{
 		us:  userStore,
 		ms:  medicationStore,
+		ud:  userdataStore,
 		cfg: config,
 	}
 }
@@ -53,7 +55,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("", h.getUserDetailsHandler)
 	u.PUT("/balance", h.updateBalanceHandler)
 	u.PUT("/manufacture", h.updateManufacture)
-	u.GET("/diseases", h.getDiseasesHandler)
+	u.GET("/disease", h.getDiseasesHandler)
 	u.GET("/available_diseases", h.getAvailableDiseasesHandler)
 	u.PUT("/research_medication", h.medicationResearchHandler)
 	u.GET("/friends", h.getFriendsHandler)
@@ -65,6 +67,19 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)
 	u.GET("/medication/:id", h.getUserMedicationByIDHandler)
+
+	//Userdata
+	u.POST("/disease", h.setUserDiseaseHandler) //FormValue diseaseid
+	// u.GET("/disease", h.getUserDiseaseHandler)
+	u.POST("/tier", h.setUserTierHandler) //FormValue tier
+	u.GET("/tier", h.getUserTierHandler)
+	u.POST("/event", h.setUserEventHandler) // FormValue event
+	u.GET("/event", h.getUserEventHandler)
+	u.POST("/researcher", h.setUserResearcherHandler) // FormValue researcher, researchername
+	u.GET("/researcher", h.getUserResearcherHandler)
+	u.PUT("/researcher", h.updateUserResearcherHandler)         // FormValue oldname, newname
+	u.POST("/researchertrait", h.setUserResearcherTraitHandler) // FormValue researchername, traitname
+	u.GET("/researchertrait", h.getUserResearcherTraitHandler)
 
 	//Medication
 	m := e.Group("/medication")
