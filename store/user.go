@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
-	"github.com/calenaur/pandemic/model"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -382,7 +382,7 @@ func (us *UserStore) GetTraitsForUserMedication(userMedication int) ([]int, erro
 		return nil, err
 	}
 
-	defer rows.Close();
+	defer rows.Close()
 	traits := []int{}
 	for rows.Next() {
 		var trait int
@@ -410,7 +410,7 @@ func (us *UserStore) GetUserMedications(userID string) ([]*model.UserMedication,
 
 	defer stmt.Close()
 	rows, err := stmt.Query(userID)
-	defer rows.Close();
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +456,7 @@ func (us *UserStore) GetUserMedicationByID(userID string, userMedicationID int) 
 		return nil, err
 	}
 
-	userMedication.ID = userMedicationID;
+	userMedication.ID = userMedicationID
 	userMedication.Traits, err = us.GetTraitsForUserMedication(userMedicationID)
 	if err != nil {
 		return nil, err
@@ -464,7 +464,6 @@ func (us *UserStore) GetUserMedicationByID(userID string, userMedicationID int) 
 
 	return userMedication, nil
 }
-
 
 func (us *UserStore) ResearchMedication(id string, medication string) error {
 	q := `

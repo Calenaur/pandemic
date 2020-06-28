@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/Calenaur/pandemic/handler/response"
 	"github.com/labstack/echo"
-	"net/http"
 )
 
 func (h *Handler) getDiseasesHandler(c echo.Context) error {
