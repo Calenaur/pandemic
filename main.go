@@ -28,9 +28,10 @@ func main() {
 	userStore := store.NewUserStore(con, cfg)
 	medicationStore := store.NewMedicationStore(con, cfg)
 	eventStore := store.NewEventStore(con, cfg)
+	diseaseStore := store.NewDiseaseStore(con, cfg)
 
 	//Setup handler
-	handler := handler.New(userStore, medicationStore, eventStore, cfg)
+	handler := handler.New(userStore, medicationStore, eventStore, diseaseStore, cfg)
 
 	//Setup echo
 	e := echo.New()
