@@ -45,6 +45,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	r.GET("", restricted)
 	r.GET("/user/:id", h.userbyid)
 	r.GET("/users", h.listAll)
+	r.GET("/usercount", h.userCount)
 	r.PUT("/makeuseradmin", h.makeUserAdminHandler)
 	r.DELETE("/user/:id", h.deleteUserByidHandler)
 
@@ -59,17 +60,25 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/manufacture", h.updateManufacture)
 
 	u.PUT("/research_medication", h.medicationResearchHandler)
-	u.GET("/friends", h.getFriendsHandler)
-	u.POST("/friend_request", h.sendFriendRequestHandler)
-	u.PUT("/friend_response", h.responseFriendRequestHandler)
+
+	//User Friend
+	u.GET("/friend", h.getFriendsHandler)
+	u.POST("/friend", h.sendFriendRequestHandler)
+	u.PUT("/friend", h.responseFriendRequestHandler)
 	u.DELETE("/friend", h.deleteFriendHandler)
-	u.PUT("/gift_friend", h.giftFriendHandler)
+	u.POST("/friend/gift", h.giftFriendHandler)
+
 	//u.PUT("/change_tier", h.changeTierHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
 
 	//User Event
+
 	u.GET("/event", h.getEventsHandler)
 	u.GET("/event/:id", h.getEventByIDHandler)
+	u.GET("/event/mine", h.getMyEventsHandler)
+	u.PUT("/event", h.subscribeToEventHandler)
+	u.DELETE("/event", h.unSubscribeToEventHandler)
+
 
 	//User Disease
 	u.GET("/disease", h.getDiseasesHandler)
@@ -85,9 +94,16 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	//Medication
 	m := e.Group("/medication")
+	m.Use(middleware.JWT([]byte(key)))
 	m.GET("", h.getMedicationsHandler)
 	m.GET("/:id", h.getMedicationByIDHandler)
 	m.GET("/trait", h.getMedicationTraitsHandler)
 	m.GET("/trait/:id", h.getMedicationTraitByIDHandler)
+
+	//Event
+	ev := e.Group("/event")
+	ev.Use(middleware.JWT([]byte(key)))
+	ev.GET("", h.getEventsHandler)
+	ev.GET("/:id", h.getEventByIDHandler)
 
 }
