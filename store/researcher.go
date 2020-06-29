@@ -97,9 +97,9 @@ func (rs *ResearcherStore) CreateResearcherTraitsFromRows(rows *sql.Rows) ([]*mo
 
 func (rs *ResearcherStore) GetByID(id int) (*model.Researcher, error) {
 	stmt, err := rs.db.Prepare(`
-		SELECT m.id, m.name, m.description, m.research_cost, m.maximum_traits, m.base_value, m.tier
-		FROM researcher m
-		WHERE m.id = ?
+		SELECT r.id, r.tier, r.researcher_speed, r.salary, r.maximum_traits, r.rarity
+		FROM researcher r
+		WHERE r.id = ?
 	`)
 	if err != nil {
 		return nil, err
@@ -118,8 +118,8 @@ func (rs *ResearcherStore) GetByID(id int) (*model.Researcher, error) {
 func (rs *ResearcherStore) Getresearchers() ([]*model.Researcher, error) {
 
 	q := `
-	SELECT m.id, m.name, m.description, m.research_cost, m.maximum_traits, m.base_value, m.tier
-	FROM researcher m`
+	SELECT  r.id, r.tier, r.researcher_speed, r.salary, r.maximum_traits, r.rarity
+	FROM researcher r`
 	rows, err := rs.db.Query(q)
 	if err != nil {
 		return nil, err
@@ -131,9 +131,9 @@ func (rs *ResearcherStore) Getresearchers() ([]*model.Researcher, error) {
 
 func (rs *ResearcherStore) GetTraitByID(id int) (*model.ResearcherTrait, error) {
 	stmt, err := rs.db.Prepare(`
-		SELECT mt.id, mt.name, mt.description, mt.tier
-		FROM researcher_trait mt
-		WHERE mt.id = ?
+		SELECT rt.id, rt.tier,rt.name, rt.description, rt.rarity
+		FROM researcher_trait rt
+		WHERE rt.id = ?
 	`)
 	if err != nil {
 		return nil, err
@@ -152,8 +152,8 @@ func (rs *ResearcherStore) GetTraitByID(id int) (*model.ResearcherTrait, error) 
 func (rs *ResearcherStore) GetTraits() ([]*model.ResearcherTrait, error) {
 
 	q := `
-		SELECT mt.id, mt.name, mt.description, mt.tier
-		FROM researcher_trait mt
+		SELECT rt.id, rt.tier,rt.name, rt.description, rt.rarity
+		FROM researcher_trait rt
 		`
 	rows, err := rs.db.Query(q)
 	if err != nil {
