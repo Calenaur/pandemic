@@ -167,7 +167,9 @@ CREATE TABLE IF NOT EXISTS `user` (
   `manufacture` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  KEY `FK_user_tier_tier_id` (`tier`),
+  CONSTRAINT `FK_tier_tier_tier_id` FOREIGN KEY (`tier`) REFERENCES `tier` (`id`) ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
@@ -185,17 +187,17 @@ CREATE TABLE IF NOT EXISTS `user_disease` (
 /*!40000 ALTER TABLE `user_disease` DISABLE KEYS */;
 /*!40000 ALTER TABLE `user_disease` ENABLE KEYS */;
 
-CREATE TABLE IF NOT EXISTS `user_tier` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `user` varchar(64) NOT NULL,
-    `tier` int(11) NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `FK_user_tier_tier_id` (`tier`),
-    KEY `FK_user_tier_user_id` (`user`),
-    CONSTRAINT `FK_user_tier_tier_id` FOREIGN KEY (`tier`) REFERENCES `tier` (`id`) ON UPDATE NO ACTION,
-    CONSTRAINT `FK_user_tier_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+# CREATE TABLE IF NOT EXISTS `user_tier` (
+#     `id` int(11) NOT NULL AUTO_INCREMENT,
+#     `user` varchar(64) NOT NULL,
+#     `tier` int(11) NOT NULL,
+#     PRIMARY KEY (`id`),
+#     KEY `FK_user_tier_tier_id` (`tier`),
+#     KEY `FK_user_tier_user_id` (`user`),
+#     CONSTRAINT `FK_user_tier_tier_id` FOREIGN KEY (`tier`) REFERENCES `tier` (`id`) ON UPDATE NO ACTION,
+#     CONSTRAINT `FK_user_tier_user_id` FOREIGN KEY (`user`) REFERENCES `user` (`id`) ON UPDATE NO ACTION
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+#
 
 
 /*!40000 ALTER TABLE `user_disease` DISABLE KEYS */;

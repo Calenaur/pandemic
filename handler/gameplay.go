@@ -7,30 +7,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-func (h *Handler) getDiseasesHandler(c echo.Context) error {
-	id, _, _ := getUserFromToken(c)
-
-	diseases, err := h.us.GetDiseases(id)
-	if err != nil {
-		return response.MessageHandler(err, "", c)
-	}
-
-	return c.JSON(http.StatusOK, diseases)
-
-}
-
-func (h *Handler) getAvailableDiseasesHandler(c echo.Context) error {
-	id, _, _ := getUserFromToken(c)
-
-	diseases, err := h.us.GetDiseasesList(id)
-	if err != nil {
-		return response.MessageHandler(err, "", c)
-	}
-
-	return c.JSON(http.StatusOK, diseases)
-
-}
-
 func (h *Handler) medicationResearchHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
@@ -41,15 +17,4 @@ func (h *Handler) medicationResearchHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "Medication researched")
-}
-
-func (h *Handler) getAvailableMedicationsHandler(c echo.Context) error {
-	id, _, _ := getUserFromToken(c)
-
-	medications, err := h.us.GetDiseasesList(id)
-	if err != nil {
-		return response.MessageHandler(err, "", c)
-	}
-
-	return c.JSON(http.StatusOK, medications)
 }

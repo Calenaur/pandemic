@@ -11,14 +11,18 @@ type Handler struct {
 	us  *store.UserStore
 	ms  *store.MedicationStore
 	ud  *store.UserdataStore
+  es  *store.EventStore
+	ds  *store.DiseaseStore
 	cfg *config.Config
 }
 
-func New(userStore *store.UserStore, medicationStore *store.MedicationStore, userdataStore *store.UserdataStore, config *config.Config) *Handler {
+func New(userStore *store.UserStore, medicationStore *store.MedicationStore, userdataStore *store.UserdataStore, eventStore *store.EventStore, diseaseStore *store.DiseaseStore, config *config.Config) *Handler {
 	return &Handler{
 		us:  userStore,
 		ms:  medicationStore,
 		ud:  userdataStore,
+    es:  eventStore,
+		ds:  diseaseStore,
 		cfg: config,
 	}
 }
@@ -58,11 +62,28 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("/disease", h.getDiseasesHandler)
 	u.GET("/available_diseases", h.getAvailableDiseasesHandler)
 	u.PUT("/research_medication", h.medicationResearchHandler)
-	u.GET("/friends", h.getFriendsHandler)
-	u.POST("/friend_request", h.sendFriendRequestHandler)
-	u.PUT("/friend_response", h.responseFriendRequestHandler)
+
+	//User Friend
+	u.GET("/friend", h.getFriendsHandler)
+	u.POST("/friend", h.sendFriendRequestHandler)
+	u.PUT("/friend", h.responseFriendRequestHandler)
 	u.DELETE("/friend", h.deleteFriendHandler)
+	u.POST("/friend/gift", h.giftFriendHandler)
+
+	//u.PUT("/change_tier", h.changeTierHandler)
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
+
+	//User Event
+	u.GET("/event/mine", h.getMyEventsHandler)
+	u.PUT("/event", h.subscribeToEventHandler)
+	u.DELETE("/event", h.unSubscribeToEventHandler)
+
+	//User Disease
+
+	u.GET("/disease/mine", h.getDiseasesForUserHandler)
+	u.GET("/disease/available", h.getAvailableDiseasesHandler)
+	u.POST("/disease", h.selectDiseaseHandler)
+	u.DELETE("/disease", h.unSelectDiseaseHandler)
 
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)
@@ -83,9 +104,22 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	//Medication
 	m := e.Group("/medication")
+	m.Use(middleware.JWT([]byte(key)))
 	m.GET("", h.getMedicationsHandler)
 	m.GET("/:id", h.getMedicationByIDHandler)
 	m.GET("/trait", h.getMedicationTraitsHandler)
 	m.GET("/trait/:id", h.getMedicationTraitByIDHandler)
+
+	//Event
+	ev := e.Group("/event")
+	ev.Use(middleware.JWT([]byte(key)))
+	ev.GET("", h.getEventsHandler)
+	ev.GET("/:id", h.getEventByIDHandler)
+
+	//Disease
+	d := e.Group("/event")
+	d.Use(middleware.JWT([]byte(key)))
+	u.GET("/", h.getDiseasesHandler)
+	u.GET("/:id", h.getDiseaseByIDHandler)
 
 }
