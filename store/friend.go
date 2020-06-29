@@ -6,17 +6,17 @@ func (us *UserStore) ShowFriends(id string) ([]*model.Friend, error) {
 
 	var (
 		name    string
-		balance int64
-		tier    string
+		balance int
+		tier    int
 	)
 	q := `
-	SELECT f.username, f.balance, t.name
-	FROM user u, user_friend uf, user f , tier t
-	WHERE u.id = uf.user AND uf.friend = f.id
-	AND f.tier = t.id
-	AND u.id = ? AND uf.status = 1`
+	SELECT f.username, f.balance, f.tier
+    FROM user u, user_friend uf, user f
+    WHERE u.id = uf.user AND uf.friend = f.id
+    AND (uf.user = ? OR uf.friend = ?)
+    AND uf.status = 1 AND NOT (f.id = ?)`
 
-	rows, err := us.db.Query(q, id)
+	rows, err := us.db.Query(q, id, id, id)
 	if err != nil {
 		return nil, err
 	}
