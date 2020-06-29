@@ -102,9 +102,9 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	ev.GET("/:id", h.getEventByIDHandler)
 
 	//Disease
-	d := e.Group("/event")
+	d := e.Group("/disease")
 	d.Use(middleware.JWT([]byte(key)))
-	u.GET("/", h.getDiseasesHandler)
-	u.GET("/:id", h.getDiseaseByIDHandler)
+	d.GET("/", h.getDiseasesHandler)
+	d.GET("/:id", h.getDiseaseByIDHandler)
 
 }

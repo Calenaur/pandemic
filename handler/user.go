@@ -103,9 +103,9 @@ func (h *Handler) getUserDetailsHandler(c echo.Context) error {
 }
 
 func (h *Handler) getFriendsHandler(c echo.Context) error {
-	id, _, _ := getUserFromToken(c)
+	id, name, _ := getUserFromToken(c)
 
-	friends, err := h.us.ShowFriends(id)
+	friends, err, _ := h.us.ShowFriends(id, name)
 
 	if err != nil {
 		return response.MessageHandler(err, "", c)
