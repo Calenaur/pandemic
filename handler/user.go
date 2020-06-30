@@ -256,7 +256,7 @@ func (h *Handler) deleteFriendHandler(c echo.Context) error {
 	// Typo intended
 	err := h.us.DeleteFriend(id, friend)
 	if err != nil {
-		return response.MessageHandler(err, "Something went wrong", c)
+		return response.MessageHandler(err, "", c)
 		// return c.JSON(http.StatusBadRequest, "Account couldn't be deleted")
 	}
 
