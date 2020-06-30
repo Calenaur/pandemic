@@ -129,47 +129,37 @@ func (ud *UserdataStore) SetUserTier(user string, tier int) error {
 	return err
 }
 
-func (ud *UserdataStore) GetUserTier(userid string) ([]*model.Tier, error) {
-	var (
-		id    int
-		name  string
-		color string
-	)
-	q := `
+func (ud *UserdataStore) GetUserTier(userid string) (*model.Tier, error) {
+	stmt, err := ud.db.Prepare(`
 	SELECT tier.id, tier.name, tier.color
 	FROM user_tier
 	JOIN tier ON user_tier.tier = tier.id
 	WHERE user = ?
-	`
-	rows, err := ud.db.Query(q, userid)
+	`)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	if err != nil {
-		return nil, err
-	}
-	results := make([]*model.Tier, 0, 10)
-	for rows.Next() {
-		err = rows.Scan(&id, &name, &color)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, &model.Tier{id, name, color})
-	}
-	err = rows.Err()
+	defer stmt.Close()
+	row := stmt.QueryRow(userid)
+
+	tier := &model.Tier{}
+	err = row.Scan(
+		&tier.ID,
+		&tier.Name,
+		&tier.Color,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	return results, err
+	return tier, err
 }
 
-func (ud *UserdataStore) UpdateUserTier(userid string, tier int, id int) error {
+func (ud *UserdataStore) UpdateUserTier(userid string, tier int) error {
 	q := `
 	UPDATE user_tier
-	SET userid = ?, tier = ?
-	WHERE id = ?
+	SET tier = ?
+	WHERE user = ?
 	`
 	stmt, err := ud.db.Prepare(q)
 	if err != nil {
@@ -177,7 +167,7 @@ func (ud *UserdataStore) UpdateUserTier(userid string, tier int, id int) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(tier, userid, id)
+	_, err = stmt.Exec(tier, userid)
 	if err != nil {
 		return err
 	}
