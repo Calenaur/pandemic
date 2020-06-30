@@ -70,7 +70,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("/friend", h.getFriendsHandler)
 	u.POST("/friend", h.sendFriendRequestHandler)
 	u.PUT("/friend", h.responseFriendRequestHandler)
-	u.DELETE("/friend", h.deleteFriendHandler)
+	u.DELETE("/friend/:friend", h.deleteFriendHandler)
 	u.POST("/friend/gift", h.giftFriendHandler)
 	u.GET("/friend/pending", h.pendingFriendsHandler)
 
