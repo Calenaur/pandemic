@@ -89,16 +89,18 @@ func accessible(c echo.Context) error {
 func (h *Handler) getUserDetailsHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
-	username, balance, manufacture, err := h.us.GetUserDetails(id)
+	username, accesslevel, tier, balance, err := h.us.GetUserDetails(id)
 
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{
+		"id":          id,
 		"username":    username,
+		"accesslevel": accesslevel,
+		"tier":        tier,
 		"balance":     balance,
-		"manufacture": manufacture,
 	})
 }
 
