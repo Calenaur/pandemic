@@ -10,6 +10,7 @@ import (
 	"unicode"
 
 	"github.com/Calenaur/pandemic/handler/response"
+	"github.com/Calenaur/pandemic/model"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
@@ -54,14 +55,12 @@ func (h *Handler) loginHandler(e echo.Context) error {
 		return response.MessageHandler(err, "UnhandledtokenError", e)
 	}
 
-	balance := strconv.Itoa(user.Balance)
-	tier := strconv.Itoa(user.Tier)
+	result := &model.Token{tok, user.Balance, user.Tier}
 
-	return e.JSON(http.StatusOK, map[string]string{
-		"token":   tok,
-		"balance": balance,
-		"tier":    tier,
-	})
+	// balance := strconv.FormatInt(user.Balance, 10)
+	// tier := strconv.Itoa(user.Tier)
+
+	return e.JSON(http.StatusOK, result)
 
 }
 
@@ -94,19 +93,13 @@ func accessible(c echo.Context) error {
 func (h *Handler) getUserDetailsHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
-	username, accesslevel, tier, balance, err := h.us.GetUserDetails(id)
+	user, err := h.us.GetUserDetails(id)
 
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{
-		"id":          id,
-		"username":    username,
-		"accesslevel": accesslevel,
-		"tier":        tier,
-		"balance":     balance,
-	})
+	return c.JSON(http.StatusOK, user)
 }
 
 func (h *Handler) getFriendsHandler(c echo.Context) error {

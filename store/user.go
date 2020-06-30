@@ -212,7 +212,7 @@ func (us *UserStore) DeleteAccount(id string) error {
 	return err
 }
 
-func (us *UserStore) GetUserDetails(id string) (string, string, string, string, error) {
+func (us *UserStore) GetUserDetails(id string) (*model.User, error) {
 
 	// Query
 	q := `
@@ -222,28 +222,18 @@ func (us *UserStore) GetUserDetails(id string) (string, string, string, string, 
 
 	stmt, err := us.db.Prepare(q)
 	if err != nil {
-		return "", "", "", "", err
+		return nil, err
 	}
 
 	defer stmt.Close()
 	row := stmt.QueryRow(id)
+	user, err := us.CreateUserFromRow(row)
 
-	username := ""
-	accesslevel := ""
-	tier := ""
-	balance := ""
-
-	err = row.Scan(
-		&username,
-		&accesslevel,
-		&tier,
-		&balance,
-	)
 	if err != nil {
-		return "", "", "", "", err
+		return nil, err
 	}
 
-	return string(username), string(accesslevel), string(tier), string(balance), err
+	return user, err
 }
 
 func (us *UserStore) UpdateBalance(id string, balance string) error {
