@@ -11,7 +11,7 @@ type Handler struct {
 	us  *store.UserStore
 	ms  *store.MedicationStore
 	ud  *store.UserdataStore
-  es  *store.EventStore
+	es  *store.EventStore
 	ds  *store.DiseaseStore
 	cfg *config.Config
 }
@@ -21,7 +21,7 @@ func New(userStore *store.UserStore, medicationStore *store.MedicationStore, use
 		us:  userStore,
 		ms:  medicationStore,
 		ud:  userdataStore,
-    es:  eventStore,
+		es:  eventStore,
 		ds:  diseaseStore,
 		cfg: config,
 	}
@@ -74,31 +74,33 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
 
 	//User Event
-	u.GET("/event/mine", h.getMyEventsHandler)
+	u.GET("/event", h.getMyEventsHandler)
 	u.PUT("/event", h.subscribeToEventHandler)
 	u.DELETE("/event", h.unSubscribeToEventHandler)
 
 	//User Disease
 
-	u.GET("/disease/mine", h.getDiseasesForUserHandler)
+	u.GET("/disease", h.getDiseasesForUserHandler)
 	u.GET("/disease/available", h.getAvailableDiseasesHandler)
-	u.POST("/disease", h.selectDiseaseHandler)
+	u.POST("/disease", h.setUserDiseaseHandler) //FormValue diseaseid
 	u.DELETE("/disease", h.unSelectDiseaseHandler)
 
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)
 	u.GET("/medication/:id", h.getUserMedicationByIDHandler)
 
-	//Userdata
-	u.POST("/disease", h.setUserDiseaseHandler) //FormValue diseaseid
-	// u.GET("/disease", h.getUserDiseaseHandler)
+	//**Userdata**
+
+	//User Tier
 	u.POST("/tier", h.setUserTierHandler) //FormValue tier
 	u.GET("/tier", h.getUserTierHandler)
-	u.POST("/event", h.setUserEventHandler) // FormValue event
-	u.GET("/event", h.getUserEventHandler)
+
+	//User Researcher
 	u.POST("/researcher", h.setUserResearcherHandler) // FormValue researcher, researchername
 	u.GET("/researcher", h.getUserResearcherHandler)
-	u.PUT("/researcher", h.updateUserResearcherHandler)         // FormValue oldname, newname
+	u.PUT("/researcher", h.updateUserResearcherHandler) // FormValue oldname, newname
+
+	//User Researcher Trait
 	u.POST("/researchertrait", h.setUserResearcherTraitHandler) // FormValue researchername, traitname
 	u.GET("/researchertrait", h.getUserResearcherTraitHandler)
 
@@ -122,4 +124,9 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	d.GET("/", h.getDiseasesHandler)
 	d.GET("/:id", h.getDiseaseByIDHandler)
 
+	//Duplicates
+	// u.POST("/disease", h.selectDiseaseHandler)
+	// u.GET("/disease", h.getUserDiseaseHandler)
+	// u.POST("/event", h.setUserEventHandler) // FormValue event
+	// u.GET("/event", h.getUserEventHandler)
 }
