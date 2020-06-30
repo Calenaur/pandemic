@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-
 	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
 	_ "github.com/go-sql-driver/mysql"
@@ -163,4 +162,24 @@ func (ms *MedicationStore) GetTraits() ([]*model.MedicationTrait, error) {
 
 	defer rows.Close()
 	return ms.CreateMedicationTraitsFromRows(rows)
+}
+
+func (ms *MedicationStore) AddMedicationAndTraits(medication string, traits []string) error {
+	for _, s := range traits {
+		q := `
+		INSERT INTO
+		user_medication_trait
+		VALUES (? , ?)
+		`
+		stmt1, err := ms.db.Prepare(q)
+		if err != nil {
+			return err
+		}
+		defer stmt1.Close()
+		_, err = stmt1.Exec(medication, s)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

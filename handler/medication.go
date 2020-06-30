@@ -68,17 +68,20 @@ func (h *Handler) medicationResearchHandler(c echo.Context) error {
 }
 
 func (h *Handler) addUserMedicationAndTraits(c echo.Context) error {
-	// id, _, _ := getUserFromToken(c)
 
-	// medication := c.FormValue("medication")
-	// trait := c.FormValue("trait")
+	medication := c.FormValue("medication")
+	//trait := c.FormValue("trait")
 
-	// traits, err := c.MultipartForm()
-	// if err != nil {
-	// return response.MessageHandler(err, "", c)
-	// }
+	traits, err := c.MultipartForm()
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
 
-	// traitSlice := traits.Value["trait"]
+	traitSlice := traits.Value["trait"]
 
-	return nil
+	err = h.ms.AddMedicationAndTraits(medication, traitSlice)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	return c.JSON(http.StatusOK, "Medication trait added")
 }
