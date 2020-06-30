@@ -251,7 +251,7 @@ func (h *Handler) responseFriendRequestHandler(c echo.Context) error {
 
 func (h *Handler) deleteFriendHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
-	friend := c.FormValue("friend")
+	friend := c.Param("friend")
 
 	// Typo intended
 	err := h.us.DeleteFriend(id, friend)
