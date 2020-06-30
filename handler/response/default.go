@@ -27,9 +27,9 @@ var DEBUG = false
 var localError uint16
 
 func MessageHandler(err error, message string, e echo.Context) error {
-	ErrorDict := make(map[uint16]string)
-	ErrorDict[1062] = "Duplicate entry"
-	ErrorDict[1048] = "Not found"
+	errorDict := make(map[uint16]string)
+	errorDict[1062] = "Duplicate entry"
+	errorDict[1048] = "Not found"
 	if DEBUG {
 		fmt.Println("In messageHandler")
 	}
@@ -69,11 +69,12 @@ func MessageHandler(err error, message string, e echo.Context) error {
 			Message: message,
 			Error: &Error{
 				Code:        errorCode,
-				Description: ErrorDict[errorCode],
+				Description: errorDict[errorCode],
 			},
 		}
-		if errorCode != 1062 {
+		if val, ok := errorDict[errorCode]; ok {
 			if DEBUG {
+				fmt.Println(val)
 				fmt.Println(err.Error())
 				log.Fatal(err.Error())
 			}
@@ -94,6 +95,7 @@ func getStatus(code uint16) int {
 	// TODO Implement all codes
 	statusDict := make(map[uint16]int)
 	statusDict[1062] = http.StatusForbidden
+	statusDict[1048] = http.StatusNotFound
 	statusDict[2000] = http.StatusForbidden
 	statusDict[2001] = http.StatusForbidden
 	statusDict[2010] = http.StatusForbidden
