@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
 	_ "github.com/go-sql-driver/mysql"
@@ -164,19 +165,42 @@ func (ms *MedicationStore) GetTraits() ([]*model.MedicationTrait, error) {
 	return ms.CreateMedicationTraitsFromRows(rows)
 }
 
-func (ms *MedicationStore) AddMedicationAndTraits(medication string, traits []string) error {
+func (ms *MedicationStore) AddMedicationAndTraits(id string, medication string, traits []string) error {
+
+	q := `
+	INSERT INTO user_medication VALUES(NULL, ?,?); 
+	`
+	stmt, err := ms.db.Prepare(q)
+	if err != nil {
+		return err
+	}
+	res, err := stmt.Exec(id, medication)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("step 1")
+	fmt.Println(result)
+	fmt.Println("step 2")
+
 	for _, s := range traits {
 		q := `
 		INSERT INTO
 		user_medication_trait
 		VALUES (? , ?)
 		`
-		stmt1, err := ms.db.Prepare(q)
+		stmt, err := ms.db.Prepare(q)
 		if err != nil {
 			return err
 		}
-		defer stmt1.Close()
-		_, err = stmt1.Exec(medication, s)
+		defer stmt.Close()
+		_, err = stmt.Exec(result, s)
 		if err != nil {
 			return err
 		}

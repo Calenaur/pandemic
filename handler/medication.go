@@ -69,6 +69,7 @@ func (h *Handler) medicationResearchHandler(c echo.Context) error {
 
 func (h *Handler) addUserMedicationAndTraits(c echo.Context) error {
 
+	id, _, _ := getUserFromToken(c)
 	medication := c.FormValue("medication")
 	//trait := c.FormValue("trait")
 
@@ -79,7 +80,7 @@ func (h *Handler) addUserMedicationAndTraits(c echo.Context) error {
 
 	traitSlice := traits.Value["trait"]
 
-	err = h.ms.AddMedicationAndTraits(medication, traitSlice)
+	err = h.ms.AddMedicationAndTraits(id, medication, traitSlice)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
