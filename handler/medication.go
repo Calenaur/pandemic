@@ -68,19 +68,28 @@ func (h *Handler) medicationResearchHandler(c echo.Context) error {
 }
 
 func (h *Handler) addUserMedicationAndTraits(c echo.Context) error {
-
 	id, _, _ := getUserFromToken(c)
-	medication := c.FormValue("medication")
-	//trait := c.FormValue("trait")
-
-	traits, err := c.MultipartForm()
-	if err != nil {
-		return response.MessageHandler(err, "", c)
+	req := c.Request();
+	if err := req.ParseForm(); err != nil {
+		return response.MessageHandler(err, "Couldn't parse request", c)
 	}
 
-	traitSlice := traits.Value["trait"]
+	var medication string
+	var traits []string
 
-	err = h.ms.AddMedicationAndTraits(id, medication, traitSlice)
+	if val, ok := req.PostForm["medication"]; ok {
+		for _, s := range val {
+			medication = s
+		}
+	}
+
+	if val, ok := req.PostForm["trait"]; ok {
+		for _, s := range val {
+			traits = append(traits, s)
+		}
+	}
+
+	err := h.ms.AddMedicationAndTraits(id, medication, traits)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
