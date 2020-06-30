@@ -49,24 +49,6 @@ func (h *Handler) updateUserDiseaseHandler(c echo.Context) error {
 	return response.MessageHandler(err, "User disease has been updated", c)
 }
 
-// FormValue tier
-func (h *Handler) setUserTierHandler(c echo.Context) error {
-	userid, _, _ := getUserFromToken(c)
-
-	tier := c.FormValue("tier")
-	tierid, err := strconv.Atoi(tier)
-	if err != nil {
-		return response.MessageHandler(err, "", c)
-	}
-
-	err = h.ud.SetUserTier(userid, tierid)
-
-	if err != nil {
-		return response.MessageHandler(err, "", c)
-	}
-	return response.MessageHandler(err, "Tier added to user", c)
-}
-
 func (h *Handler) getUserTierHandler(c echo.Context) error {
 	userid, _, _ := getUserFromToken(c)
 
@@ -77,7 +59,6 @@ func (h *Handler) getUserTierHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, tiers)
 }
 
-// FIXME ID to user_tier
 func (h *Handler) updateUserTierHandler(c echo.Context) error {
 	userid, _, _ := getUserFromToken(c)
 	tier := c.FormValue("tier")
