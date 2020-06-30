@@ -16,3 +16,10 @@ type ResearcherTrait struct {
 	Description string `json:"description"`
 	Rarity      int    `json:"rarity"`
 }
+
+type ResearcherTrait struct {
+	Tier        int    `json:"tier"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Rarity      int    `json:"rarity"`
+}

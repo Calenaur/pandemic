@@ -5,6 +5,7 @@ import (
 
 	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type MedicationStore struct {
