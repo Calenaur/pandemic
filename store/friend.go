@@ -200,7 +200,7 @@ func (us *UserStore) RespondFriendRequest(id string, friendName string, response
 	// Query
 	var q = `UPDATE 
 	user_friend
-	SET status = 1
+	SET status = ?
 	WHERE (user = ? AND friend = (SELECT id FROM user WHERE username = ?)) OR (user = (SELECT id FROM user WHERE username = ?) AND friend = ?) `
 	stmt1, err := us.db.Prepare(q)
 	if err != nil {
