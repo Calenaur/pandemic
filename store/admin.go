@@ -10,7 +10,7 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*model.User, error) {
 		// users       []Users
 		id          string
 		username    string
-		accesslevel int
+		accesslevel int64
 		tier        int
 		balance     int
 	)

@@ -77,7 +77,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.DELETE("/event", h.unSubscribeToEventHandler)
 
 	//User Disease
-
 	u.GET("/disease", h.getDiseasesForUserHandler)
 	u.GET("/disease/available", h.getAvailableDiseasesHandler)
 	u.POST("/disease", h.setUserDiseaseHandler) //FormValue diseaseid
@@ -89,7 +88,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/medication", h.medicationResearchHandler)
 
 	//**Userdata**
-
 	//User Tier
 	u.POST("/tier", h.setUserTierHandler) //FormValue tier
 	u.GET("/tier", h.getUserTierHandler)
