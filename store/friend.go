@@ -1,6 +1,8 @@
 package store
 
 import (
+	"errors"
+
 	"github.com/Calenaur/pandemic/model"
 )
 
@@ -227,11 +229,17 @@ func (us *UserStore) DeleteFriend(id string, friendName string) error {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(id, friendName, friendName, id)
+	result, err := stmt.Exec(id, friendName, friendName, id)
 	if err != nil {
 		return err
 	}
-
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows != 1 {
+		err = errors.New("Method failed")
+	}
 	return err
 }
 

@@ -9,6 +9,7 @@
 	2100 - password passwordhash mismatch
 
 	2200 - User does not exist
+	2201 - Method failed
   
   2300 - parsing error; invalid syntax (id moet int zijn)
 
@@ -16,4 +17,5 @@
 
   2999 - Unknown error
 	
+1048 - Not found
 1062 - Duplicate entry SQL error

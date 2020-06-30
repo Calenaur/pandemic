@@ -103,6 +103,7 @@ func getStatus(code uint16) int {
 	statusDict[2012] = http.StatusForbidden
 	statusDict[2100] = http.StatusUnauthorized
 	statusDict[2200] = http.StatusNotFound
+	statusDict[2201] = http.StatusBadRequest
 	statusDict[2300] = http.StatusBadRequest
 	statusDict[2400] = http.StatusForbidden
 	if val, ok := statusDict[code]; ok {
@@ -129,6 +130,8 @@ func getLocalError(err error) (uint16, string) {
 		return 2100, "Password and hashed password mismatch"
 	} else if err.Error() == "sql: no rows in result set" {
 		return 2200, "User does not exist"
+	} else if err.Error() == "Method failed" {
+		return 2201, err.Error()
 	} else if strings.Contains(err.Error(), "invalid syntax") {
 		slicedError := (strings.SplitAfterN(strings.ReplaceAll(err.Error(), "\"", "'"), ": ", 2)[1])
 		return 2300, formatError(slicedError)
