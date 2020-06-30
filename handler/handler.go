@@ -13,16 +13,18 @@ type Handler struct {
 	ud  *store.UserdataStore
 	es  *store.EventStore
 	ds  *store.DiseaseStore
+	ts  *store.TierStore
 	cfg *config.Config
 }
 
-func New(userStore *store.UserStore, medicationStore *store.MedicationStore, userdataStore *store.UserdataStore, eventStore *store.EventStore, diseaseStore *store.DiseaseStore, config *config.Config) *Handler {
+func New(userStore *store.UserStore, medicationStore *store.MedicationStore, userdataStore *store.UserdataStore, eventStore *store.EventStore, diseaseStore *store.DiseaseStore, tierStore *store.TierStore, config *config.Config) *Handler {
 	return &Handler{
 		us:  userStore,
 		ms:  medicationStore,
 		ud:  userdataStore,
 		es:  eventStore,
 		ds:  diseaseStore,
+		ts:  tierStore,
 		cfg: config,
 	}
 }
@@ -49,6 +51,9 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	r.GET("/usercount", h.userCount)
 	r.PUT("/makeuseradmin", h.makeUserAdminHandler)
 	r.DELETE("/user/:id", h.deleteUserByidHandler)
+	r.POST("/tier", h.setTierHandler)          //FormValue tiername, tiercolor
+	r.PUT("/tier/:id", h.updateTierHandler)    //Param id, FormValue tiername, tiercolor
+	r.DELETE("/tier/:id", h.deleteTierHandler) //Param id
 
 	//User specific stuff
 	u := e.Group("/user")
@@ -92,6 +97,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//User Tier
 	u.POST("/tier", h.setUserTierHandler) //FormValue tier
 	u.GET("/tier", h.getUserTierHandler)
+	u.PUT("/tier", h.updateUserTierHandler) //FormValue tier
 
 	//User Researcher
 	u.POST("/researcher", h.setUserResearcherHandler) // FormValue researcher, researchername
@@ -122,6 +128,12 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	d.GET("", h.getDiseasesHandler)
 	d.GET("/:id", h.getDiseaseByIDHandler)
 	d.GET("/medication", h.getDiseaseMedicationHandler)
+
+	//Tier
+	t := e.Group("/tier")
+	t.Use(middleware.JWT([]byte(key)))
+	t.GET("", h.getTierListHandler)
+	t.GET("/:id", h.getTierByIDHandler) //Param id
 
 	//Duplicates
 	// u.POST("/disease", h.selectDiseaseHandler)

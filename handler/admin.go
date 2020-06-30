@@ -123,9 +123,11 @@ func (h *Handler) deleteUserByidHandler(c echo.Context) error {
 		if err != nil {
 			return response.MessageHandler(err, "", c)
 		}
+		return c.JSON(http.StatusOK, "User Deleted successfully")
 	}
+	err = errors.New("Restricted access")
 
-	return c.JSON(http.StatusOK, "User Deleted successfully")
+	return response.MessageHandler(err, "", c)
 }
 
 func (h *Handler) makeUserAdminHandler(c echo.Context) error {
@@ -144,7 +146,9 @@ func (h *Handler) makeUserAdminHandler(c echo.Context) error {
 		if err != nil {
 			return response.MessageHandler(err, "", c)
 		}
+		return c.JSON(http.StatusOK, "User is now admin")
 	}
+	err = errors.New("Restricted access")
 
-	return c.JSON(http.StatusOK, "User is now admin")
+	return response.MessageHandler(err, "", c)
 }

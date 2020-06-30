@@ -80,10 +80,13 @@ func (h *Handler) getUserTierHandler(c echo.Context) error {
 // FIXME ID to user_tier
 func (h *Handler) updateUserTierHandler(c echo.Context) error {
 	userid, _, _ := getUserFromToken(c)
-	tier := 0
-	id := 0
+	tier := c.FormValue("tier")
+	tierInt, err := strconv.Atoi(tier)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
 
-	err := h.ud.UpdateUserTier(userid, tier, id)
+	err = h.ud.UpdateUserTier(userid, tierInt)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
