@@ -29,6 +29,7 @@ var localError uint16
 func MessageHandler(err error, message string, e echo.Context) error {
 	ErrorDict := make(map[uint16]string)
 	ErrorDict[1062] = "Duplicate entry"
+	ErrorDict[1048] = "Not found"
 	if DEBUG {
 		fmt.Println("In messageHandler")
 	}

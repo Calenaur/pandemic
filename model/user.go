@@ -4,6 +4,6 @@ type User struct {
 	ID          string `json:"id"`
 	Username    string `json:"username"`
 	AccessLevel int64  `json:"accesslevel"`
-	Tier        int64  `json:"tier"`
-	Balance     int64  `json:"balance"`
+	Tier        int    `json:"tier"`
+	Balance     int    `json:"balance"`
 }
