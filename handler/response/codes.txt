@@ -18,4 +18,5 @@
   2999 - Unknown error
 	
 1048 - Not found
+1052 - Method cannot be executed
 1062 - Duplicate entry SQL error

@@ -23,13 +23,14 @@ type Error struct {
 // Unknown Error
 var UNKNOWN_ERROR uint16 = 2999
 
-var DEBUG = true
+var DEBUG = false
 var localError uint16
 
 func MessageHandler(err error, message string, e echo.Context) error {
 	errorDict := make(map[uint16]string)
 	errorDict[1062] = "Duplicate entry"
 	errorDict[1048] = "Not found"
+	errorDict[1452] = "Method cannot be executed"
 	if DEBUG {
 		fmt.Println("In messageHandler")
 	}
@@ -72,10 +73,10 @@ func MessageHandler(err error, message string, e echo.Context) error {
 				Description: errorDict[errorCode],
 			},
 		}
-		if val, ok := errorDict[errorCode]; ok {
+		if val, ok := errorDict[errorCode]; !ok {
 			if DEBUG {
 				fmt.Println(val)
-				fmt.Println(err.Error())
+				// fmt.Println(err.Error())
 				log.Fatal(err.Error())
 			}
 		}
