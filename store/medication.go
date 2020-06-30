@@ -164,24 +164,24 @@ func (ms *MedicationStore) GetTraits() ([]*model.MedicationTrait, error) {
 	return ms.CreateMedicationTraitsFromRows(rows)
 }
 
-func (ms *MedicationStore) AddMedicationAndTraits(id string, medication string, traits []string) error {
+func (ms *MedicationStore) AddMedicationAndTraits(id string, medication string, traits []string) (int64, error) {
 
 	q := `
 	INSERT INTO user_medication VALUES(NULL, ?,?); 
 	`
 	stmt, err := ms.db.Prepare(q)
 	if err != nil {
-		return err
+		return -1, err
 	}
 	res, err := stmt.Exec(id, medication)
 	if err != nil {
-		return err
+		return -1, err
 	}
 	defer stmt.Close()
 
 	result, err := res.LastInsertId()
 	if err != nil {
-		return err
+		return -1, err
 	}
 
 	for _, s := range traits {
@@ -192,13 +192,13 @@ func (ms *MedicationStore) AddMedicationAndTraits(id string, medication string, 
 		`
 		stmt, err := ms.db.Prepare(q)
 		if err != nil {
-			return err
+			return -1, err
 		}
 		defer stmt.Close()
 		_, err = stmt.Exec(result, s)
 		if err != nil {
-			return err
+			return -1, err
 		}
 	}
-	return nil
+	return result, nil
 }

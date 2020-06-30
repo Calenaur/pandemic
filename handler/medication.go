@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/Calenaur/pandemic/handler/response"
+	"github.com/Calenaur/pandemic/model"
 	"github.com/labstack/echo"
 )
 
@@ -89,9 +90,9 @@ func (h *Handler) addUserMedicationAndTraits(c echo.Context) error {
 		}
 	}
 
-	err := h.ms.AddMedicationAndTraits(id, medication, traits)
+	newid, err := h.ms.AddMedicationAndTraits(id, medication, traits)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
-	return c.JSON(http.StatusOK, "Medication trait added")
+	return c.JSON(http.StatusOK, &model.IDResponse{ID: newid})
 }
