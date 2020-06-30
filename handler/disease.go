@@ -76,3 +76,15 @@ func (h *Handler) unSelectDiseaseHandler(c echo.Context) error {
 	}
 	return response.MessageHandler(err, "Disease: "+disease+" is Deleted", c)
 }
+
+func (h *Handler) getAvailableMedicationsHandler(c echo.Context) error {
+	//id, _, _ := getUserFromToken(c)
+	//
+	//medications, err := h.ds.GetDiseasesList(id)
+	//if err != nil {
+	//	return response.MessageHandler(err, "", c)
+	//}
+	//
+	//return c.JSON(http.StatusOK, medications)
+	return nil
+}

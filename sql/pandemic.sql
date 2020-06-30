@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `accesslevel` int(11) DEFAULT 1,
   `tier` int(11) DEFAULT 1,
   `balance` int(20) DEFAULT 0,
-  `manufacture` int(11) DEFAULT 0,
+  `device` varchar(64),
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `username` (`username`),

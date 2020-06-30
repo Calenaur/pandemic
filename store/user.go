@@ -26,7 +26,7 @@ func NewUserStore(db *sql.DB, cfg *config.Config) *UserStore {
 func (us *UserStore) GetByID(id string) (*model.User, error) {
 	stmt, err := us.db.Prepare(`
 		SELECT 
-		id, username, accesslevel, tier, balance, manufacture
+		id, username, accesslevel, tier, balance
 		FROM user
 		WHERE id = ?
 	`)
@@ -55,7 +55,6 @@ func (us *UserStore) CreateUserFromRow(row *sql.Row) (*model.User, error) {
 		&user.Balance,
 
 		// &user.SessionDate,
-		&user.Manufacture,
 	)
 	if err != nil {
 		return nil, err
@@ -71,7 +70,7 @@ func (us *UserStore) UserLogin(username string, password string) (*model.User, e
 		return nil, err
 	}
 	q := `
-	SELECT id, username, accesslevel,tier, balance, manufacture
+	SELECT id, username, accesslevel,tier, balance
 	FROM user 
 	WHERE username = ?
 	`
@@ -266,12 +265,12 @@ func (us *UserStore) UpdateBalance(id string, balance string) error {
 	return err
 }
 
-func (us *UserStore) UpdateManufacture(id string, manufacture string) error {
+func (us *UserStore) UpdateDevice(id string, device string) error {
 	// Query
 	q := `
 	UPDATE
 	user 
-	SET manufacture = ?
+	SET device = ?
 	WHERE id = ?
 	`
 	stmt, err := us.db.Prepare(q)
@@ -279,12 +278,39 @@ func (us *UserStore) UpdateManufacture(id string, manufacture string) error {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(manufacture, id)
+	_, err = stmt.Exec(device, id)
 	if err != nil {
 		return err
 	}
 
 	return err
+}
+
+func (us *UserStore) GetDevice(id string) (string, error) {
+	// Query
+	q := `
+	SELECT device
+	FROM user
+	WHERE id = ?
+	`
+	stmt, err := us.db.Prepare(q)
+	if err != nil {
+		return "", err
+	}
+
+	defer stmt.Close()
+	row := stmt.QueryRow(id)
+
+	device := ""
+
+	err = row.Scan(
+		&device,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return device, err
 }
 
 func (us *UserStore) GetTraitsForUserMedication(userMedication int) ([]int, error) {
@@ -388,7 +414,7 @@ func (us *UserStore) GetUserMedicationByID(userID string, userMedicationID int) 
 func (us *UserStore) ResearchMedication(id string, medication string) error {
 	q := `
 	INSERT INTO user_medication(user, medication) 
-	VALUES ( ?,(SELECT m.id FROM medication m WHERE m.name = "?"  ));
+	VALUES ( ?, ? );
 	`
 	stmt, err := us.db.Prepare(q)
 	if err != nil {

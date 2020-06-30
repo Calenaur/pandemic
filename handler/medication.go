@@ -17,7 +17,7 @@ func (h *Handler) getMedicationsHandler(c echo.Context) error {
 }
 
 func (h *Handler) getMedicationByIDHandler(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"));
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
@@ -41,7 +41,7 @@ func (h *Handler) getMedicationTraitsHandler(c echo.Context) error {
 }
 
 func (h *Handler) getMedicationTraitByIDHandler(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"));
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
@@ -52,4 +52,16 @@ func (h *Handler) getMedicationTraitByIDHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, medicationTrait)
+}
+
+func (h *Handler) medicationResearchHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	medication := c.FormValue("medication")
+	err := h.us.ResearchMedication(id, medication)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, "Medication researched")
 }

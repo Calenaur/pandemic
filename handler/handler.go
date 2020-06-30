@@ -57,9 +57,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.DELETE("", h.deleteAccountHandler)
 	u.GET("", h.getUserDetailsHandler)
 	u.PUT("/balance", h.updateBalanceHandler)
-	u.PUT("/manufacture", h.updateManufacture)
-
-	u.PUT("/research_medication", h.medicationResearchHandler)
+	u.POST("/device", h.updateDeviceHandler)
+	u.GET("/device", h.getDeviceHandler)
 
 	//User Friend
 	u.GET("/friend", h.getFriendsHandler)
@@ -67,9 +66,9 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.PUT("/friend", h.responseFriendRequestHandler)
 	u.DELETE("/friend", h.deleteFriendHandler)
 	u.POST("/friend/gift", h.giftFriendHandler)
+	u.GET("/friend/pending", h.pendingFriendsHandler)
 
 	//u.PUT("/change_tier", h.changeTierHandler)
-	//u.GET("/diseases_cures", h.whitchMedicationCuresWhichDiseaseHandler)
 
 	//User Event
 	u.GET("/event/mine", h.getMyEventsHandler)
@@ -77,7 +76,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.DELETE("/event", h.unSubscribeToEventHandler)
 
 	//User Disease
-
 	u.GET("/disease/mine", h.getDiseasesForUserHandler)
 	u.GET("/disease/available", h.getAvailableDiseasesHandler)
 	u.POST("/disease", h.selectDiseaseHandler)
@@ -86,6 +84,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//User Medication
 	u.GET("/medication", h.getUserMedicationsHandler)
 	u.GET("/medication/:id", h.getUserMedicationByIDHandler)
+	u.PUT("/medication", h.medicationResearchHandler)
 
 	//Medication
 	m := e.Group("/medication")
@@ -106,5 +105,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	d.Use(middleware.JWT([]byte(key)))
 	d.GET("/", h.getDiseasesHandler)
 	d.GET("/:id", h.getDiseaseByIDHandler)
+	//d.GET("/medication", h.whitchMedicationCuresWhichDiseaseHandler)
 
 }

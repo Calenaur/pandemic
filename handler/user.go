@@ -46,6 +46,8 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	claims["sub"] = user.ID
 	claims["name"] = user.Username
 	claims["access"] = user.AccessLevel
+	claims["balance"] = user.Balance
+	claims["tier"] = user.Tier
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	tok, err := token.SignedString([]byte(h.cfg.Token.Key))
@@ -114,6 +116,18 @@ func (h *Handler) getFriendsHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, friends)
 }
 
+func (h *Handler) pendingFriendsHandler(c echo.Context) error {
+	id, name, _ := getUserFromToken(c)
+
+	friends, err, _ := h.us.ShowPendingFriends(id, name)
+
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+
+	return c.JSON(http.StatusOK, friends)
+}
+
 // Update the user Balance
 func (h *Handler) updateBalanceHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
@@ -127,16 +141,26 @@ func (h *Handler) updateBalanceHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Balance Changed successfully")
 }
 
-func (h *Handler) updateManufacture(c echo.Context) error {
+func (h *Handler) updateDeviceHandler(c echo.Context) error {
 	id, _, _ := getUserFromToken(c)
 
-	newManufacture := c.FormValue("newmanufacture")
+	device := c.FormValue("device")
 
-	err := h.us.UpdateManufacture(id, newManufacture)
+	err := h.us.UpdateDevice(id, device)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
-	return c.JSON(http.StatusOK, "Manufacture Changed successfully")
+	return c.JSON(http.StatusOK, "device Changed successfully")
+}
+
+func (h *Handler) getDeviceHandler(c echo.Context) error {
+	id, _, _ := getUserFromToken(c)
+
+	device, err := h.us.GetDevice(id)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	return c.JSON(http.StatusOK, device)
 }
 
 // Allow the user to change his/her name
