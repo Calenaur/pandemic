@@ -121,7 +121,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	//Disease
 	d := e.Group("/disease")
 	d.Use(middleware.JWT([]byte(key)))
-	d.GET("/", h.getDiseasesHandler)
+	d.GET("", h.getDiseasesHandler)
 	d.GET("/:id", h.getDiseaseByIDHandler)
 
 	//Duplicates
