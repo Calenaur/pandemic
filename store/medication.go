@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/Calenaur/pandemic/model"
 	"github.com/calenaur/pandemic/config"
 	_ "github.com/go-sql-driver/mysql"
@@ -184,10 +183,6 @@ func (ms *MedicationStore) AddMedicationAndTraits(id string, medication string, 
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("step 1")
-	fmt.Println(result)
-	fmt.Println("step 2")
 
 	for _, s := range traits {
 		q := `

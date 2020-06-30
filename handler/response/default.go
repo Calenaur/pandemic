@@ -23,7 +23,7 @@ type Error struct {
 // Unknown Error
 var UNKNOWN_ERROR uint16 = 2999
 
-var DEBUG = true
+var DEBUG = false
 var localError uint16
 
 func MessageHandler(err error, message string, e echo.Context) error {
