@@ -46,8 +46,6 @@ func (h *Handler) loginHandler(e echo.Context) error {
 	claims["sub"] = user.ID
 	claims["name"] = user.Username
 	claims["access"] = user.AccessLevel
-	claims["balance"] = user.Balance
-	claims["tier"] = user.Tier
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	tok, err := token.SignedString([]byte(h.cfg.Token.Key))
@@ -56,8 +54,13 @@ func (h *Handler) loginHandler(e echo.Context) error {
 		return response.MessageHandler(err, "UnhandledtokenError", e)
 	}
 
+	balance := strconv.Itoa(user.Balance)
+	tier := strconv.Itoa(user.Tier)
+
 	return e.JSON(http.StatusOK, map[string]string{
-		"token": tok,
+		"token":   tok,
+		"balance": balance,
+		"tier":    tier,
 	})
 
 }
