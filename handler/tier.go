@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -30,18 +31,39 @@ func (h *Handler) getTierListHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, tiers)
 }
 
+// ADMIN
 func (h *Handler) setTierHandler(c echo.Context) error {
-	tiername := c.FormValue("tiername")
-	tiercolor := c.FormValue("tiercolor")
-
-	err := h.ts.SetTier(tiername, tiercolor)
+	_, _, accesslevel := getUserFromToken(c)
+	accesslevelInt, err := strconv.Atoi(accesslevel)
 	if err != nil {
 		return response.MessageHandler(err, "", c)
 	}
-	return response.MessageHandler(err, "Tier added", c)
+
+	tiername := c.FormValue("tiername")
+	tiercolor := c.FormValue("tiercolor")
+
+	if accesslevelInt > 99 {
+		err := h.ts.SetTier(tiername, tiercolor)
+		if err != nil {
+			return response.MessageHandler(err, "", c)
+		}
+		return response.MessageHandler(err, "Tier added", c)
+	}
+	err = errors.New("Restricted access")
+
+	return response.MessageHandler(err, "", c)
 }
 
 func (h *Handler) updateTierHandler(c echo.Context) error {
+	_, _, accesslevel := getUserFromToken(c)
+	accesslevelInt, err := strconv.Atoi(accesslevel)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	if accesslevelInt < 100 {
+		err = errors.New("Restricted access")
+		return response.MessageHandler(err, "", c)
+	}
 	id := c.Param("id")
 	tiername := c.FormValue("tiername")
 	tiercolor := c.FormValue("tiercolor")
@@ -69,6 +91,15 @@ func (h *Handler) updateTierHandler(c echo.Context) error {
 }
 
 func (h *Handler) deleteTierHandler(c echo.Context) error {
+	_, _, accesslevel := getUserFromToken(c)
+	accesslevelInt, err := strconv.Atoi(accesslevel)
+	if err != nil {
+		return response.MessageHandler(err, "", c)
+	}
+	if accesslevelInt < 100 {
+		err = errors.New("Restricted access")
+		return response.MessageHandler(err, "", c)
+	}
 	id := c.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
