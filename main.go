@@ -28,12 +28,12 @@ func main() {
 	userStore := store.NewUserStore(con, cfg)
 	medicationStore := store.NewMedicationStore(con, cfg)
 	userdataStore := store.NewUserdataStore(con, cfg)
-  eventStore := store.NewEventStore(con, cfg)
+	eventStore := store.NewEventStore(con, cfg)
 	diseaseStore := store.NewDiseaseStore(con, cfg)
+	tierStore := store.NewTierStore(con, cfg)
 
 	//Setup handler
-	handler := handler.New(userStore, medicationStore, userdataStore, eventStore, diseaseStore, cfg)
-
+	handler := handler.New(userStore, medicationStore, userdataStore, eventStore, diseaseStore, tierStore, cfg)
 
 	//Setup echo
 	e := echo.New()

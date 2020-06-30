@@ -131,11 +131,12 @@ func (ud *UserdataStore) SetUserTier(user string, tier int) error {
 
 func (ud *UserdataStore) GetUserTier(userid string) ([]*model.Tier, error) {
 	var (
+		id    int
 		name  string
 		color string
 	)
 	q := `
-	SELECT tier.name, tier.color
+	SELECT tier.id, tier.name, tier.color
 	FROM user_tier
 	JOIN tier ON user_tier.tier = tier.id
 	WHERE user = ?
@@ -150,11 +151,11 @@ func (ud *UserdataStore) GetUserTier(userid string) ([]*model.Tier, error) {
 	}
 	results := make([]*model.Tier, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&name, &color)
+		err = rows.Scan(&id, &name, &color)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &model.Tier{name, color})
+		results = append(results, &model.Tier{id, name, color})
 	}
 	err = rows.Err()
 	if err != nil {
