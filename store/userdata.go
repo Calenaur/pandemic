@@ -132,9 +132,9 @@ func (ud *UserdataStore) SetUserTier(user string, tier int) error {
 func (ud *UserdataStore) GetUserTier(userid string) (*model.Tier, error) {
 	stmt, err := ud.db.Prepare(`
 	SELECT tier.id, tier.name, tier.color
-	FROM user_tier
-	JOIN tier ON user_tier.tier = tier.id
-	WHERE user = ?
+	FROM tier
+	JOIN user ON user.tier = tier.id
+	WHERE user.id = ?
 	`)
 	if err != nil {
 		return nil, err
