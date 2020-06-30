@@ -109,32 +109,12 @@ func (ud *UserdataStore) UpdateUserDisease(userid string, diseaseid int, id int)
 	return err
 }
 
-func (ud *UserdataStore) SetUserTier(user string, tier int) error {
-	q := `
-	INSERT INTO user_tier (user, tier)
-	VALUES (?, ?)
-	`
-
-	stmt, err := ud.db.Prepare(q)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(user, tier)
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
 func (ud *UserdataStore) GetUserTier(userid string) (*model.Tier, error) {
 	stmt, err := ud.db.Prepare(`
 	SELECT tier.id, tier.name, tier.color
-	FROM user_tier
-	JOIN tier ON user_tier.tier = tier.id
-	WHERE user = ?
+	FROM tier
+	JOIN user ON user.tier = tier.id
+	WHERE user.id = ?
 	`)
 	if err != nil {
 		return nil, err
@@ -157,9 +137,9 @@ func (ud *UserdataStore) GetUserTier(userid string) (*model.Tier, error) {
 
 func (ud *UserdataStore) UpdateUserTier(userid string, tier int) error {
 	q := `
-	UPDATE user_tier
+	UPDATE user
 	SET tier = ?
-	WHERE user = ?
+	WHERE id = ?
 	`
 	stmt, err := ud.db.Prepare(q)
 	if err != nil {

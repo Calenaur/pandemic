@@ -95,7 +95,6 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	//**Userdata**
 	//User Tier
-	u.POST("/tier", h.setUserTierHandler) //FormValue tier
 	u.GET("/tier", h.getUserTierHandler)
 	u.PUT("/tier", h.updateUserTierHandler) //FormValue tier
 
