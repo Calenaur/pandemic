@@ -86,6 +86,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	u.GET("/medication", h.getUserMedicationsHandler)
 	u.GET("/medication/:id", h.getUserMedicationByIDHandler)
 	u.PUT("/medication", h.medicationResearchHandler)
+	u.POST("/medication", h.addUserMedicationAndTraits)
 
 	//**Userdata**
 	//User Tier

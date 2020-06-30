@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/Calenaur/pandemic/handler/response"
-	"github.com/labstack/echo"
 	"net/http"
 	"strconv"
+
+	"github.com/Calenaur/pandemic/handler/response"
+	"github.com/labstack/echo"
 )
 
 func (h *Handler) getMedicationsHandler(c echo.Context) error {
@@ -64,4 +65,20 @@ func (h *Handler) medicationResearchHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "Medication researched")
+}
+
+func (h *Handler) addUserMedicationAndTraits(c echo.Context) error {
+	// id, _, _ := getUserFromToken(c)
+
+	// medication := c.FormValue("medication")
+	// trait := c.FormValue("trait")
+
+	// traits, err := c.MultipartForm()
+	// if err != nil {
+	// return response.MessageHandler(err, "", c)
+	// }
+
+	// traitSlice := traits.Value["trait"]
+
+	return nil
 }

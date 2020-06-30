@@ -9,7 +9,7 @@ type Disease struct {
 }
 
 type DiseaseMedication struct {
-	Diseases      string `json:'disease'`
-	Medications   string `json:'medication'`
-	Effectiveness string `json:'effectiveness'`
+	Diseases      int `json:"disease"`
+	Medications   int `json:"medication"`
+	Effectiveness int `json:"effectiveness"`
 }
