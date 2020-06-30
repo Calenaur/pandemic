@@ -56,6 +56,39 @@ func (ds *DiseaseStore) CreateDiseasesFromRows(rows *sql.Rows) ([]*model.Disease
 	return diseases, nil
 }
 
+func (ds *DiseaseStore) CreateDiseaseMedicationFromRow(row *sql.Row) (*model.DiseaseMedication, error) {
+	diseaseMed := &model.DiseaseMedication{}
+	err := row.Scan(
+		&diseaseMed.Diseases,
+		&diseaseMed.Medications,
+		&diseaseMed.Effectiveness,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return diseaseMed, err
+}
+
+func (ds *DiseaseStore) CreateDiseasesMedicationFromRows(rows *sql.Rows) ([]*model.DiseaseMedication, error) {
+	diseasesMeds := []*model.DiseaseMedication{}
+	for rows.Next() {
+		diseaseMed := &model.DiseaseMedication{}
+		err := rows.Scan(
+			&diseaseMed.Diseases,
+			&diseaseMed.Medications,
+			&diseaseMed.Effectiveness,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		diseasesMeds = append(diseasesMeds, diseaseMed)
+	}
+
+	return diseasesMeds, nil
+}
+
 func (ds *DiseaseStore) GetByID(id int) (*model.Disease, error) {
 	stmt, err := ds.db.Prepare(`
 		SELECT d.id, d.tier, d.name, d.description, d.rarity
@@ -160,4 +193,19 @@ func (ds *DiseaseStore) UnSelectDisease(id string, disease string) error {
 	}
 
 	return err
+}
+
+func (ds *DiseaseStore) GetDiseaseMedication() ([]*model.DiseaseMedication, error) {
+
+	q := `
+		SELECT *
+		FROM medication_disease
+	`
+	rows, err := ds.db.Query(q)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	return ds.CreateDiseasesMedicationFromRows(rows)
 }

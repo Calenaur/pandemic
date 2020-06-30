@@ -7,3 +7,9 @@ type Disease struct {
 	Description string `json:"description"`
 	Rarity      int    `json:"rarity"`
 }
+
+type DiseaseMedication struct {
+	Diseases      string `json:'disease'`
+	Medications   string `json:'medication'`
+	Effectiveness string `json:'effectiveness'`
+}

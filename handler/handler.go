@@ -120,7 +120,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	d.Use(middleware.JWT([]byte(key)))
 	d.GET("", h.getDiseasesHandler)
 	d.GET("/:id", h.getDiseaseByIDHandler)
-	//d.GET("/medication", h.whitchMedicationCuresWhichDiseaseHandler)
+	d.GET("/medication", h.getDiseaseMedicationHandler)
 
 	//Duplicates
 	// u.POST("/disease", h.selectDiseaseHandler)
