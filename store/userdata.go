@@ -50,6 +50,7 @@ func (ud *UserdataStore) SetUserDisease(userid string, diseaseid int) error {
 
 func (ud *UserdataStore) GetUserDisease(userid string) ([]*model.Disease, error) {
 	var (
+		id          int
 		tier        int
 		name        string
 		description string
@@ -72,11 +73,11 @@ func (ud *UserdataStore) GetUserDisease(userid string) ([]*model.Disease, error)
 	}
 	results := make([]*model.Disease, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&tier, &name, &description, &rarity)
+		err = rows.Scan(&id, &tier, &name, &description, &rarity)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &model.Disease{tier, name, description, rarity})
+		results = append(results, &model.Disease{id, tier, name, description, rarity})
 	}
 	err = rows.Err()
 	if err != nil {
@@ -204,6 +205,7 @@ func (ud *UserdataStore) SetUserEvent(userid string, eventid int) error {
 
 func (ud *UserdataStore) GetUserEvent(userid string) ([]*model.Event, error) {
 	var (
+		id          int
 		name        string
 		description string
 		rarity      int
@@ -225,11 +227,11 @@ func (ud *UserdataStore) GetUserEvent(userid string) ([]*model.Event, error) {
 	}
 	results := make([]*model.Event, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&name, &description, &rarity, &tier)
+		err = rows.Scan(&id, &name, &description, &rarity, &tier)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &model.Event{name, description, rarity, tier})
+		results = append(results, &model.Event{id, name, description, rarity, tier})
 	}
 	err = rows.Err()
 	if err != nil {
@@ -360,6 +362,7 @@ func (ud *UserdataStore) SetUserResearcherTrait(userid string, userResearchernam
 
 func (ud *UserdataStore) GetUserResearcherTrait(userid string) ([]*model.ResearcherTrait, error) {
 	var (
+		id          int
 		tier        int
 		name        string
 		description string
@@ -385,11 +388,11 @@ func (ud *UserdataStore) GetUserResearcherTrait(userid string) ([]*model.Researc
 	}
 	results := make([]*model.ResearcherTrait, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&tier, &name, &description, &rarity)
+		err = rows.Scan(&id, &tier, &name, &description, &rarity)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &model.ResearcherTrait{tier, name, description, rarity})
+		results = append(results, &model.ResearcherTrait{id, tier, name, description, rarity})
 	}
 	err = rows.Err()
 	if err != nil {
