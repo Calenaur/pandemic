@@ -1,15 +1,10 @@
 package store
 
-type Users struct {
-	ID          string `json:"id"`
-	Username    string `json:"username"`
-	AccessLevel int    `json:"accesslevel"`
-	Tier        int    `json:"tier"`
-	Balance     int    `json:"balance"`
-	Manufacture int    `json:"manufacture"`
-}
+import (
+	"github.com/Calenaur/pandemic/model"
+)
 
-func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
+func (us *UserStore) ListAll(offset int64, limit int64) ([]*model.User, error) {
 	// Query
 	var (
 		// users       []Users
@@ -18,10 +13,9 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 		accesslevel int
 		tier        int
 		balance     int
-		manufacture int
 	)
 	q := `
-	SELECT id, username, accesslevel, tier, balance, manufacture
+	SELECT id, username, accesslevel, tier, balance
 	FROM user
 	LIMIT ? OFFSET ?;`
 
@@ -33,13 +27,13 @@ func (us *UserStore) ListAll(offset int64, limit int64) ([]*Users, error) {
 	if err != nil {
 		return nil, err
 	}
-	results := make([]*Users, 0, 10)
+	results := make([]*model.User, 0, 10)
 	for rows.Next() {
-		err = rows.Scan(&id, &username, &accesslevel, &tier, &balance, &manufacture)
+		err = rows.Scan(&id, &username, &accesslevel, &tier, &balance)
 		if err != nil {
 			return nil, err
 		}
-		results = append(results, &Users{id, username, accesslevel, tier, balance, manufacture})
+		results = append(results, &model.User{id, username, accesslevel, tier, balance})
 	}
 	err = rows.Err()
 	if err != nil {
