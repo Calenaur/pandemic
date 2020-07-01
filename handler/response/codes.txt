@@ -1,0 +1,22 @@
+2000 local errors
+	2000 - Username length
+	2001 - username special
+	
+	2010 - password length
+	2011 - password missing upper case
+	2012 - password missing numeric
+	
+	2100 - password passwordhash mismatch
+
+	2200 - User does not exist
+	2201 - Method failed
+  
+  2300 - parsing error; invalid syntax (id moet int zijn)
+
+	2400 - Restricted access; need higher access level
+
+  2999 - Unknown error
+	
+1048 - Not found
+1052 - Method cannot be executed
+1062 - Duplicate entry SQL error

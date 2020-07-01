@@ -1,7 +1,14 @@
+  
 {
 	"database": {
 		"database":	"",
 		"username":	"",
 		"password":	""
-	}
+  },
+  "token": {
+    "key": ""
+  },
+  "server": {
+    "port": ""
+  }
 }

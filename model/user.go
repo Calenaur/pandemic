@@ -1,6 +1,9 @@
 package model
 
 type User struct {
-	ID int64 					`json:"id"`
-	Username string 			`json:"username"`
+	ID          string `json:"id"`
+	Username    string `json:"username"`
+	AccessLevel int    `json:"accesslevel"`
+	Tier        int    `json:"tier"`
+	Balance     int64  `json:balance`
 }
